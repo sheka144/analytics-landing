@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Медлайн · Реклама — кампании, объявления, окупаемость</title>
+<style>
+:root{
+  --bg:#f1f5f6; --panel:#ffffff; --panel2:#f2f7f8; --line:#e2eaec; --line2:#d4e0e2;
+  --txt:#13242a; --txt2:#2f444b; --mut:#5f7178; --mut2:#92a6ad;
+  --teal:#0e7490; --teal-bg:#e2f1f5; --green:#10876a; --green-bg:#e3f4ee;
+  --cor:#d2603a; --cor-bg:#fbede6; --amb:#b07a0a; --amb-bg:#fbf2dd; --red:#cb4640; --red-bg:#fbe9e8;
+  --good:#10876a; --bad:#cb4640;
+  --r:12px; --shadow:0 1px 2px rgba(19,36,42,.04),0 8px 22px rgba(19,36,42,.05);
+  --font:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Inter,Arial,sans-serif;
+  --mono:"SF Mono",ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:var(--font);line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}button{font-family:var(--font);cursor:pointer;border:none}
+
+.app{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+.side{background:var(--panel);border-right:1px solid var(--line);padding:20px 14px;display:flex;flex-direction:column;gap:3px;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:11px;padding:4px 8px 18px;border-bottom:1px solid var(--line);margin-bottom:12px}
+.brand .ava{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:#fff;background:var(--teal)}
+.brand .bn{font-weight:700;font-size:15px;line-height:1.1}.brand .bt{font-size:11px;color:var(--mut)}
+.nav-grp{font-size:10.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--mut2);padding:14px 12px 6px}
+.nav-i{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:9px;color:var(--mut);font-size:13.5px;font-weight:600;transition:.14s}
+.nav-i svg{width:17px;height:17px;flex:0 0 auto;stroke:currentColor;fill:none;stroke-width:1.7}
+.nav-i:hover{background:var(--panel2);color:var(--txt2)}
+.nav-i.on{background:var(--teal-bg);color:var(--teal)}
+.side-foot{margin-top:auto;border-top:1px solid var(--line);padding-top:12px}
+.back{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mut);padding:8px;font-weight:600}.back:hover{color:var(--teal)}
+
+.main{display:flex;flex-direction:column;min-width:0}
+.topbar{display:flex;align-items:center;gap:16px;padding:16px 28px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20;flex-wrap:wrap}
+.topbar h1{font-size:19px;font-weight:700;letter-spacing:-.2px}
+.topbar .crumb{font-size:11.5px;color:var(--mut);font-weight:600}
+.topbar .right{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.live{font-size:12px;color:var(--green);display:flex;align-items:center;gap:6px;font-weight:600}
+.live .dot{width:7px;height:7px;border-radius:50%;background:var(--green)}
+.demo-tag{font-size:11px;color:var(--amb);background:var(--amb-bg);border-radius:6px;padding:3px 9px;font-weight:600}
+.sel{background:var(--panel);border:1px solid var(--line);color:var(--txt2);font-size:13px;font-weight:600;padding:8px 12px;border-radius:8px;cursor:pointer}
+.sel:focus{outline:none;border-color:var(--teal)}
+.seg{display:inline-flex;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:3px}
+.seg button{background:none;color:var(--mut);font-size:12.5px;font-weight:600;padding:6px 13px;border-radius:7px;transition:.14s}
+.seg button.on{background:var(--panel);color:var(--teal);box-shadow:var(--shadow)}
+
+.content{padding:22px 28px 46px;display:flex;flex-direction:column;gap:18px}
+.section{display:none;flex-direction:column;gap:18px}.section.on{display:flex}
+
+.kpi-row{display:grid;gap:14px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:15px 16px;box-shadow:var(--shadow)}
+.kpi .k{font-size:11.5px;color:var(--mut);font-weight:600}
+.kpi .v{font-size:22px;font-weight:700;letter-spacing:-.5px;margin-top:8px;font-variant-numeric:tabular-nums}
+.kpi .v small{font-size:13px;color:var(--mut);font-weight:600}
+.kpi .foot{margin-top:6px;font-size:11.5px;font-weight:600}
+.up{color:var(--good)}.down{color:var(--bad)}.flat{color:var(--mut)}
+
+.grid{display:grid;gap:18px;align-items:start}
+.g-2{grid-template-columns:1.5fr 1fr}.g-2e{grid-template-columns:1fr 1fr}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px;box-shadow:var(--shadow)}
+.panel .ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:10px;flex-wrap:wrap}
+.panel .ph h3{font-size:14px;font-weight:700}
+.panel .ph .sub{font-size:11.5px;color:var(--mut);font-weight:500}
+.panel .ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.legend{display:flex;gap:16px;margin-top:8px;font-size:12px;color:var(--mut);font-weight:600;flex-wrap:wrap}
+.legend i{display:inline-block;width:18px;height:3px;border-radius:2px;margin-right:6px;vertical-align:3px}
+.legend i.sq{width:11px;height:11px;border-radius:3px;vertical-align:-1px}
+.legend i.dash{background:none;border-top:2px dashed var(--mut2);height:0}
+
+.chart{width:100%;height:auto;display:block;font-family:var(--font)}
+.chart .grid-l{stroke:var(--line);stroke-width:1}
+.chart .axis-t{fill:var(--mut2);font-size:10.5px}.chart .axis-x{fill:var(--mut);font-size:11px}
+.chart .tgt-l{stroke:var(--mut2);stroke-width:1.2;stroke-dasharray:4 4}
+.chart .vlab{fill:var(--txt2);font-size:10.5px;font-weight:700}
+
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:right;color:var(--mut);font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;padding:9px 9px;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+.tbl td{padding:11px 9px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}
+.tbl tbody tr:last-child td{border-bottom:none}
+.tbl tbody tr{cursor:pointer;transition:.12s}
+.tbl tbody tr:hover{background:var(--panel2)}
+.tbl tbody tr.sel{background:var(--teal-bg)}
+.pill{font-size:11.5px;font-weight:700;padding:2px 9px;border-radius:7px;font-variant-numeric:tabular-nums}
+.pill.g{background:var(--green-bg);color:var(--green)}.pill.r{background:var(--red-bg);color:var(--bad)}.pill.b{background:var(--teal-bg);color:var(--teal)}
+.src{display:flex;flex-direction:column;gap:1px}.src b{font-weight:700;font-size:13px}.src span{font-family:var(--mono);font-size:10.5px;color:var(--mut)}
+
+/* доступность: курсор на кликабельном, видимый фокус, reduced-motion */
+.nav-i,.tbl tbody tr{cursor:pointer}
+:where(.nav-i,.seg button,.sel,.back):focus-visible{outline:2px solid #2563eb;outline-offset:2px;border-radius:8px}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}}
+@media(max-width:980px){.app{grid-template-columns:1fr}.side{display:none}.g-2,.g-2e{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><div class="ava">М</div><div><div class="bn">Медлайн</div><div class="bt">медицинский центр</div></div></div>
+    <div class="nav-grp">Реклама</div>
+    <div class="nav-i on" data-sec="ov"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> Обзор</div>
+    <div class="nav-i" data-sec="camp"><svg viewBox="0 0 24 24"><path d="M3 11l18-8-8 18-2-7z"/></svg> Кампании</div>
+    <div class="nav-i" data-sec="ads"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 9h18M8 14l2 2 4-4"/></svg> Объявления</div>
+    <div class="nav-i" data-sec="dyn"><svg viewBox="0 0 24 24"><path d="M3 17l5-5 4 4 8-9"/><path d="M17 7h4v4"/></svg> Динамика</div>
+    <div class="side-foot"><a class="back" href="../index.html">← Вернуться на сайт</a></div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div><div class="crumb">Медлайн / Реклама / <span id="crumb">Обзор</span></div><h1 id="title">Окупаемость рекламы по кампаниям</h1></div>
+      <div class="right">
+        <select class="sel" id="period"><option>Июнь 2026</option><option>Май 2026</option><option>2 кв 2026</option></select>
+        <span class="demo-tag">демо · обезличено</span><span class="live"><span class="dot"></span>обновлено</span>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- ОБЗОР -->
+      <div class="section on" data-sec="ov">
+        <div class="kpi-row" style="grid-template-columns:repeat(5,1fr)">
+          <div class="kpi"><div class="k">Расход</div><div class="v">1,95<small> млн ₸</small></div><div class="foot flat">за период</div></div>
+          <div class="kpi"><div class="k">Обращения</div><div class="v">1 340</div><div class="foot up">▲ 12% м/м</div></div>
+          <div class="kpi"><div class="k">Записи</div><div class="v">187</div><div class="foot up">▲ 9%</div></div>
+          <div class="kpi"><div class="k">Цена записи (CPA)</div><div class="v">10 430<small> ₸</small></div><div class="foot up">▼ 6%</div></div>
+          <div class="kpi"><div class="k">ROMI</div><div class="v">3,0×</div><div class="foot flat">цель 2,5×</div></div>
+        </div>
+        <div class="grid g-2">
+          <div class="panel">
+            <div class="ph"><h3>Записи по дням</h3><span class="sub">текущий период против предыдущего</span></div>
+            <div id="chart-ov"></div>
+            <div class="legend"><span><i style="background:var(--teal)"></i>текущий</span><span><i class="dash"></i>предыдущий</span></div>
+          </div>
+          <div class="panel">
+            <div class="ph"><h3>ROMI по кампаниям</h3><span class="sub">линия — окупаемость 1,0×</span></div>
+            <div id="chart-romi"></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="ph"><h3>Цена записи и ROMI по месяцам</h3><span class="sub">дешевеет ли привлечение пациента</span></div>
+          <div id="chart-cac"></div>
+          <div class="legend"><span><i class="sq" style="background:var(--teal)"></i>цена записи, ₸ (лев. ось)</span><span><i style="background:var(--cor)"></i>ROMI (прав. ось)</span></div>
+        </div>
+      </div>
+
+      <!-- КАМПАНИИ -->
+      <div class="section" data-sec="camp">
+        <div class="panel">
+          <div class="ph"><h3>Кампании</h3><span class="sub">клик по кампании — разбивка по объявлениям</span></div>
+          <table class="tbl" id="camp-tbl"><thead><tr><th>Кампания</th><th>Расход</th><th>Показы</th><th>CTR</th><th>Клики</th><th>CPC</th><th>Обращ.</th><th>Записи</th><th>CPA</th><th>ROMI</th></tr></thead><tbody></tbody></table>
+        </div>
+        <div class="panel" id="drill-panel" style="display:none">
+          <div class="ph"><h3 id="drill-h">Объявления кампании</h3><span class="sub">эффективность по креативам</span></div>
+          <table class="tbl" id="adsd-tbl"><thead><tr><th>Объявление</th><th>Расход</th><th>CTR</th><th>Обращ.</th><th>Записи</th><th>CPA</th><th>ROMI</th></tr></thead><tbody></tbody></table>
+        </div>
+      </div>
+
+      <!-- ОБЪЯВЛЕНИЯ -->
+      <div class="section" data-sec="ads">
+        <div class="panel">
+          <div class="ph"><h3>Все объявления по окупаемости</h3><span class="sub">от лучшего к худшему · линия — окупаемость 1,0×</span></div>
+          <div id="chart-rank"></div>
+        </div>
+        <div class="panel">
+          <div class="ph"><h3>Детали по объявлениям</h3></div>
+          <table class="tbl" id="ads-tbl"><thead><tr><th>Объявление</th><th>Кампания</th><th>Расход</th><th>Обращ.</th><th>Записи</th><th>CPA</th><th>ROMI</th></tr></thead><tbody></tbody></table>
+        </div>
+      </div>
+
+      <!-- ДИНАМИКА -->
+      <div class="section" data-sec="dyn">
+        <div class="panel">
+          <div class="ph">
+            <h3 id="dyn-h">Записи по дням</h3>
+            <div class="ctl">
+              <select class="sel" id="dyn-metric"><option value="rec">Записи</option><option value="msg">Обращения</option><option value="spend">Расход</option></select>
+              <div class="seg" id="dyn-gran"><button data-g="day" class="on">День</button><button data-g="week">Неделя</button><button data-g="month">Месяц</button></div>
+            </div>
+          </div>
+          <div id="chart-dyn"></div>
+          <div class="legend"><span><i style="background:var(--teal)"></i>текущий период</span><span><i class="dash"></i>предыдущий период</span></div>
+        </div>
+        <div class="panel">
+          <div class="ph"><h3>Конверсия «обращение → запись» по месяцам</h3><span class="sub">% обращений, которые дошли до записи</span></div>
+          <div id="chart-conv"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+function ru(n){return Math.round(n).toLocaleString('ru-RU')}
+function tg(v){if(Math.abs(v)>=1e6)return(v/1e6).toFixed(1).replace('.',',')+'М';if(Math.abs(v)>=1e3)return Math.round(v/1e3)+'к';return Math.round(v)}
+function cw(elId){const e=document.getElementById(elId);return Math.max((e&&e.clientWidth)||720,360)}
+
+function smooth(p){if(p.length<2)return p.map(q=>q.join(',')).join(' L ');let d=`${p[0][0]} ${p[0][1]}`;
+  for(let i=0;i<p.length-1;i++){const a=p[i-1]||p[i],b=p[i],c=p[i+1],e=p[i+2]||p[i+1];
+    d+=` C ${b[0]+(c[0]-a[0])/6} ${b[1]+(c[1]-a[1])/6}, ${c[0]-(e[0]-b[0])/6} ${c[1]-(e[1]-b[1])/6}, ${c[0]} ${c[1]}`;}return d;}
+/* area + опц. предыдущий период (пунктир) */
+function areaChart(elId,o){
+  const W=cw(elId),H=300,pL=50,pR=18,pT=18,pB=o.rot?54:34,pw=W-pL-pR,ph=H-pT-pB,ticks=4;
+  const all=o.data.concat(o.prev||[]),ymax=o.yMax||Math.max(...all)*1.25||1;
+  const x=i=>pL+pw*i/(o.data.length-1),y=v=>pT+ph*(1-v/ymax);
+  let s=`<svg class="chart" viewBox="0 0 ${W} ${H}">`;
+  s+=`<defs><linearGradient id="ar_${elId}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${o.color}" stop-opacity="0.28"/><stop offset="1" stop-color="${o.color}" stop-opacity="0.02"/></linearGradient></defs>`;
+  for(let t=0;t<=ticks;t++){const yy=pT+ph*t/ticks,val=ymax*(1-t/ticks);
+    s+=`<line class="grid-l" x1="${pL}" y1="${yy}" x2="${pL+pw}" y2="${yy}"/><text class="axis-t" x="${pL-8}" y="${yy+3}" text-anchor="end">${o.yFmt?o.yFmt(val):Math.round(val)}</text>`;}
+  if(o.prev){const PP=o.prev.map((v,i)=>[x(i),y(v)]);s+=`<path d="M ${smooth(PP)}" fill="none" stroke="${o.mut||'var(--mut2)'}" stroke-width="2" stroke-dasharray="6 5" stroke-linejoin="round"/>`;}
+  const P=o.data.map((v,i)=>[x(i),y(v)]),lineD=smooth(P);
+  s+=`<path d="M ${lineD} L ${x(o.data.length-1)} ${pT+ph} L ${x(0)} ${pT+ph} Z" fill="url(#ar_${elId})"/>`;
+  s+=`<path d="M ${lineD}" fill="none" stroke="${o.color}" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>`;
+  if(o.data.length<=16)P.forEach(p=>s+=`<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="#fff" stroke="${o.color}" stroke-width="2"/>`);
+  o.labels.forEach((l,i)=>{const xx=x(i);
+    if(o.rot)s+=`<text class="axis-x" x="${xx}" y="${H-14}" text-anchor="end" transform="rotate(-40 ${xx} ${H-14})">${l}</text>`;
+    else s+=`<text class="axis-x" x="${xx}" y="${H-12}" text-anchor="middle">${l}</text>`;});
+  s+=`</svg>`;document.getElementById(elId).innerHTML=s;
+}
+function lineChart(elId,o){
+  const W=cw(elId),H=o.h||260,pL=48,pR=16,pT=16,pB=34,pw=W-pL-pR,ph=H-pT-pB,ticks=o.yTicks||4,ymax=o.yMax,ymin=o.yMin||0;
+  const x=i=>pL+pw*i/(o.labels.length-1),y=v=>pT+ph*(1-(v-ymin)/(ymax-ymin));
+  let s=`<svg class="chart" viewBox="0 0 ${W} ${H}">`;
+  for(let t=0;t<=ticks;t++){const yy=pT+ph*t/ticks,val=ymin+(ymax-ymin)*(1-t/ticks);
+    s+=`<line class="grid-l" x1="${pL}" y1="${yy}" x2="${pL+pw}" y2="${yy}"/><text class="axis-t" x="${pL-8}" y="${yy+3}" text-anchor="end">${o.yFmt?o.yFmt(val):Math.round(val)}</text>`;}
+  o.labels.forEach((l,i)=>s+=`<text class="axis-x" x="${x(i)}" y="${H-12}" text-anchor="middle">${l}</text>`);
+  (o.series||[]).forEach(se=>{const pts=se.data.map((v,i)=>`${x(i)},${y(v)}`).join(' ');
+    s+=`<polyline points="${pts}" fill="none" stroke="${se.color}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+    se.data.forEach((v,i)=>s+=`<circle cx="${x(i)}" cy="${y(v)}" r="3.4" fill="#fff" stroke="${se.color}" stroke-width="2"/>`);});
+  s+=`</svg>`;document.getElementById(elId).innerHTML=s;
+}
+function catBars(elId,o){
+  const n=o.labels.length,W=cw(elId),H=280,pL=40,pR=16,pT=20,pB=40,pw=W-pL-pR,ph=H-pT-pB,ticks=5;
+  const ymax=o.yMax,slot=pw/n,bw=Math.min(slot*0.4,40),y=v=>pT+ph*(1-v/ymax);
+  let s=`<svg class="chart" viewBox="0 0 ${W} ${H}">`;
+  for(let t=0;t<=ticks;t++){const yy=pT+ph*t/ticks,val=ymax*(1-t/ticks);
+    s+=`<line class="grid-l" x1="${pL}" y1="${yy}" x2="${pL+pw}" y2="${yy}"/><text class="axis-t" x="${pL-8}" y="${yy+3}" text-anchor="end">${val.toFixed(0)}×</text>`;}
+  o.labels.forEach((l,i)=>{const v=o.values[i],cx=pL+slot*i+slot/2,bx=cx-bw/2,by=y(v);
+    s+=`<rect x="${bx}" y="${by}" width="${bw}" height="${Math.max(pT+ph-by,1)}" rx="3" fill="${o.colors[i]}"/>`;
+    s+=`<text class="vlab" x="${cx}" y="${by-6}" text-anchor="middle">${v.toFixed(1)}×</text>`;
+    s+=`<text class="axis-x" x="${cx}" y="${H-14}" text-anchor="middle">${l}</text>`;});
+  if(o.target!=null){const ty=y(o.target);s+=`<line class="tgt-l" x1="${pL}" y1="${ty}" x2="${pL+pw}" y2="${ty}"/>`;}
+  s+=`</svg>`;document.getElementById(elId).innerHTML=s;
+}
+function comboChart(elId,o){
+  const n=o.labels.length,W=cw(elId),H=280,pL=54,pR=46,pT=18,pB=34,pw=W-pL-pR,ph=H-pT-pB,ticks=4;
+  const slot=pw/n,bw=Math.min(slot*0.5,46),yb=v=>pT+ph*(1-v/o.barMax),yl=v=>pT+ph*(1-v/o.lineMax),x=i=>pL+slot*i+slot/2;
+  let s=`<svg class="chart" viewBox="0 0 ${W} ${H}">`;
+  for(let t=0;t<=ticks;t++){const yy=pT+ph*t/ticks,lv=o.barMax*(1-t/ticks),rv=o.lineMax*(1-t/ticks);
+    s+=`<line class="grid-l" x1="${pL}" y1="${yy}" x2="${pL+pw}" y2="${yy}"/>`;
+    s+=`<text class="axis-t" x="${pL-8}" y="${yy+3}" text-anchor="end">${tg(lv)}</text>`;
+    s+=`<text class="axis-t" x="${pL+pw+8}" y="${yy+3}" text-anchor="start" style="fill:var(--cor)">${rv.toFixed(1)}×</text>`;}
+  o.labels.forEach((l,i)=>{const bx=x(i)-bw/2,by=yb(o.bars[i]);s+=`<rect x="${bx}" y="${by}" width="${bw}" height="${Math.max(pT+ph-by,1)}" rx="3" fill="var(--teal)"/>`;s+=`<text class="axis-x" x="${x(i)}" y="${H-12}" text-anchor="middle">${l}</text>`;});
+  const pts=o.line.map((v,i)=>`${x(i)},${yl(v)}`).join(' ');
+  s+=`<polyline points="${pts}" fill="none" stroke="var(--cor)" stroke-width="2.5" stroke-linejoin="round"/>`;
+  o.line.forEach((v,i)=>s+=`<circle cx="${x(i)}" cy="${yl(v)}" r="3.4" fill="#fff" stroke="var(--cor)" stroke-width="2"/>`);
+  s+=`</svg>`;document.getElementById(elId).innerHTML=s;
+}
+/* горизонтальный рейтинг (объявления по ROMI) */
+function hbars(elId,rows){ // [label, value, color]
+  const W=cw(elId),rowH=34,pT=10,pL=210,pR=80,H=pT*2+rows.length*rowH,pw=W-pL-pR;
+  const max=Math.max(...rows.map(r=>r[1]),1.2)*1.08,be=pL+1/max*pw;
+  let s=`<svg class="chart" viewBox="0 0 ${W} ${H}">`;
+  s+=`<line x1="${be}" y1="${pT-4}" x2="${be}" y2="${H-pT+2}" class="tgt-l"/>`;
+  rows.forEach((r,i)=>{const y=pT+i*rowH+4,bw=Math.max(r[1]/max*pw,2);
+    s+=`<text x="${pL-10}" y="${y+15}" text-anchor="end" style="fill:var(--txt2);font-size:12px;font-weight:600">${r[0]}</text>`;
+    s+=`<rect x="${pL}" y="${y}" width="${pw}" height="22" rx="6" fill="var(--panel2)"/>`;
+    s+=`<rect x="${pL}" y="${y}" width="${bw}" height="22" rx="6" fill="${r[2]}"/>`;
+    s+=`<text x="${pL+bw+8}" y="${y+15}" style="fill:var(--txt2);font-size:11.5px;font-weight:700">${r[1].toFixed(1)}×</text>`;});
+  s+=`</svg>`;document.getElementById(elId).innerHTML=s;
+}
+
+/* ---------- данные ---------- */
+// кампания: [имя, расход, показы, клики, обращения, записи, выручка, класс, объявления[[имя,расход,показы,клики,обращения,записи,выручка,класс]]]
+const C=[
+  ["«Чек-ап со скидкой»",620000,92000,1240,470,74,2356000,"g",[
+    ["видео «здоровье»",240000,38000,520,196,34,1085000,"g"],["карусель «цены»",210000,31000,430,158,28,820000,"g"],["фото «врачи»",170000,23000,290,116,12,451000,"b"]]],
+  ["«Лето — анализы»",540000,78000,980,388,61,1730000,"g",[
+    ["видео «анализы»",300000,44000,560,224,40,1190000,"g"],["статика «акция»",240000,34000,420,164,21,540000,"b"]]],
+  ["«Виджет — общий»",480000,110000,1430,360,12,290000,"r",[
+    ["баннер «приходите»",260000,62000,800,201,6,138000,"r"],["видео «о клинике»",220000,48000,630,159,6,152000,"r"]]],
+  ["«Ретаргет»",310000,24000,620,122,40,1085000,"g",[
+    ["напоминание «запишитесь»",180000,14000,360,70,26,720000,"g"],["отзывы пациентов",130000,10000,260,52,14,365000,"g"]]]
+];
+function days(n){const out=[];const d=new Date(2026,5,8);for(let i=n-1;i>=0;i--){const t=new Date(d);t.setDate(d.getDate()-i);out.push(('0'+t.getDate()).slice(-2)+'.'+('0'+(t.getMonth()+1)).slice(-2));}return out;}
+const DYN={
+  day:{labels:days(14),
+    rec:[6,5,8,6,9,5,8,4,7,8,5,9,6,10],recP:[5,4,6,5,7,4,6,3,5,6,4,7,5,7],
+    msg:[44,38,58,46,62,40,55,33,48,54,39,61,45,72],msgP:[38,33,49,40,52,35,47,29,41,46,34,52,39,60],
+    spend:[62000,58000,70000,64000,72000,60000,68000,55000,66000,70000,60000,74000,64000,80000],spendP:[56000,52000,62000,58000,64000,54000,60000,50000,59000,62000,54000,66000,58000,70000]},
+  week:{labels:["07.04","14.04","21.04","28.04","05.05","12.05","19.05","26.05","02.06","тек."],
+    rec:[38,42,40,45,41,46,44,39,48,47],recP:[33,36,35,39,36,40,38,34,42,41],
+    msg:[280,310,295,330,305,340,325,300,355,348],msgP:[245,270,258,290,268,298,285,262,312,306],
+    spend:[440000,460000,450000,480000,455000,485000,470000,450000,495000,490000],spendP:[400000,420000,410000,438000,415000,442000,428000,410000,452000,448000]},
+  month:{labels:["Янв","Фев","Мар","Апр","Май","Июн"],
+    rec:[150,165,158,176,190,187],recP:[120,135,130,150,165,160],
+    msg:[1050,1150,1100,1220,1310,1340],msgP:[900,1000,960,1080,1180,1210],
+    spend:[1600000,1700000,1650000,1800000,1900000,1950000],spendP:[1450000,1550000,1500000,1650000,1750000,1800000]}
+};
+let curGran="day",curMetric="rec";
+function set(id,v){const e=document.getElementById(id);if(e)e.innerHTML=v}
+function clr(k){return k==='r'?'var(--bad)':k==='b'?'var(--teal)':'var(--green)'}
+
+function renderOv(){
+  const d=DYN.day;
+  areaChart("chart-ov",{labels:d.labels,data:d.rec,prev:d.recP,color:"var(--teal)",rot:true});
+  catBars("chart-romi",{labels:["Чек-ап","Анализы","Виджет","Ретаргет"],values:C.map(c=>c[6]/c[1]),colors:C.map(c=>clr(c[7])),yMax:5,target:1.0});
+  comboChart("chart-cac",{labels:DYN.month.labels,bars:[12100,11600,11700,11000,10500,10430],line:[2.5,2.7,2.6,2.8,2.9,3.0],barMax:14000,lineMax:4});
+}
+function renderCamp(){
+  document.querySelector("#camp-tbl tbody").innerHTML=C.map((c,i)=>{
+    const ctr=c[3]/c[2]*100,cpc=c[1]/c[3],cpa=c[1]/c[5],romi=c[6]/c[1];
+    return `<tr data-i="${i}"><td><b>${c[0]}</b></td><td>${tg(c[1])} ₸</td><td>${ru(c[2])}</td><td>${ctr.toFixed(2)}%</td><td>${ru(c[3])}</td><td>${ru(cpc)} ₸</td><td>${ru(c[4])}</td><td>${c[5]}</td><td>${ru(cpa)} ₸</td><td><span class="pill ${c[7]}">${romi.toFixed(1)}×</span></td></tr>`;
+  }).join("");
+}
+function drill(i){
+  const c=C[i];set("drill-h","Объявления — "+c[0]);
+  document.querySelector("#adsd-tbl tbody").innerHTML=c[8].map(a=>{
+    const ctr=a[3]/a[2]*100,cpa=a[1]/a[5],romi=a[6]/a[1];
+    return `<tr><td>${a[0]}</td><td>${tg(a[1])} ₸</td><td>${ctr.toFixed(2)}%</td><td>${ru(a[4])}</td><td>${a[5]}</td><td>${ru(cpa)} ₸</td><td><span class="pill ${a[7]}">${romi.toFixed(1)}×</span></td></tr>`;
+  }).join("");
+  document.getElementById("drill-panel").style.display="block";
+  document.querySelectorAll("#camp-tbl tbody tr").forEach(x=>x.classList.toggle("sel",x.dataset.i==i));
+}
+function allAds(){const out=[];C.forEach(c=>c[8].forEach(a=>out.push({n:a[0],camp:c[0],spend:a[1],msg:a[4],rec:a[5],rev:a[6],k:a[7],romi:a[6]/a[1],cpa:a[1]/a[5]})));return out.sort((a,b)=>b.romi-a.romi);}
+function renderAds(){
+  const ads=allAds();
+  hbars("chart-rank",ads.map(a=>[a.n,a.romi,clr(a.k)]));
+  document.querySelector("#ads-tbl tbody").innerHTML=ads.map(a=>
+    `<tr><td><b>${a.n}</b></td><td style="color:var(--mut)">${a.camp}</td><td>${tg(a.spend)} ₸</td><td>${ru(a.msg)}</td><td>${a.rec}</td><td>${ru(a.cpa)} ₸</td><td><span class="pill ${a.k}">${a.romi.toFixed(1)}×</span></td></tr>`).join("");
+}
+function renderDyn(){
+  const d=DYN[curGran],data=d[curMetric],prev=d[curMetric+"P"];
+  const fmt=curMetric==='spend'?(v=>tg(v)):(v=>Math.round(v));
+  areaChart("chart-dyn",{labels:d.labels,data,prev,color:"var(--teal)",yFmt:fmt,rot:curGran==='day'});
+  const conv=DYN.month.rec.map((r,i)=>+(r/DYN.month.msg[i]*100).toFixed(1));
+  lineChart("chart-conv",{labels:DYN.month.labels,yMax:20,yMin:0,yTicks:4,yFmt:v=>v.toFixed(0)+'%',series:[{color:"var(--teal)",data:conv}]});
+}
+const TITLES={ov:["Обзор","Окупаемость рекламы по кампаниям"],camp:["Кампании","Эффективность кампаний и объявлений"],ads:["Объявления","Рейтинг объявлений по окупаемости"],dyn:["Динамика","Движение по дням, неделям, месяцам"]};
+const DYNH={rec:"Записи",msg:"Обращения",spend:"Расход"},DYNG={day:"по дням",week:"по неделям",month:"по месяцам"};
+function showSection(sec){
+  document.querySelectorAll(".nav-i").forEach(n=>n.classList.toggle("on",n.dataset.sec===sec));
+  document.querySelectorAll(".section").forEach(s=>s.classList.toggle("on",s.dataset.sec===sec));
+  set("crumb",TITLES[sec][0]);set("title",TITLES[sec][1]);
+  if(sec==="ov")renderOv();if(sec==="camp")renderCamp();if(sec==="ads")renderAds();if(sec==="dyn")renderDyn();
+}
+document.querySelectorAll(".nav-i").forEach(n=>n.addEventListener("click",()=>showSection(n.dataset.sec)));
+document.querySelector("#camp-tbl").addEventListener("click",e=>{const tr=e.target.closest("tr[data-i]");if(tr)drill(tr.dataset.i);});
+document.getElementById("dyn-metric").addEventListener("change",e=>{curMetric=e.target.value;set("dyn-h",DYNH[curMetric]+' '+DYNG[curGran]);renderDyn();});
+document.getElementById("dyn-gran").addEventListener("click",e=>{if(e.target.dataset.g){curGran=e.target.dataset.g;document.querySelectorAll("#dyn-gran button").forEach(b=>b.classList.remove("on"));e.target.classList.add("on");set("dyn-h",DYNH[curMetric]+' '+DYNG[curGran]);renderDyn();}});
+let rt;window.addEventListener("resize",()=>{clearTimeout(rt);rt=setTimeout(()=>{showSection(document.querySelector(".nav-i.on").dataset.sec);},180);});
+renderCamp();renderOv();
+</script>
+</body>
+</html>

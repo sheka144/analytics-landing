@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" font-family="Inter, 'Segoe UI', Arial, sans-serif">
+  <defs>
+    <linearGradient id="hl" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#34d399"/>
+      <stop offset="1" stop-color="#60a5fa"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.82" cy="0.05" r="0.7">
+      <stop offset="0" stop-color="#16365a" stop-opacity="0.55"/>
+      <stop offset="0.6" stop-color="#16365a" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="#0a0e16"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+
+  <!-- логотип-строка -->
+  <g transform="translate(80,78)">
+    <circle cx="9" cy="9" r="9" fill="#34d399"/>
+    <text x="30" y="15" fill="#8da2bd" font-size="24" font-weight="600">Аналитика на одном экране</text>
+  </g>
+
+  <!-- заголовок -->
+  <g transform="translate(80,210)">
+    <text x="0" y="0" fill="#eaf1fb" font-size="68" font-weight="800" letter-spacing="-1">Вы знаете свою выручку.</text>
+    <text x="0" y="92" fill="#eaf1fb" font-size="68" font-weight="800" letter-spacing="-1">А где <tspan fill="url(#hl)">теряете деньги</tspan> — нет.</text>
+  </g>
+
+  <!-- подзаголовок -->
+  <text x="80" y="430" fill="#8da2bd" font-size="30" font-weight="500">Реклама, CRM и деньги — в одном живом дашборде.</text>
+
+  <!-- источники -->
+  <g transform="translate(80,500)" font-size="24" font-weight="600">
+    <g>
+      <rect x="0" y="0" width="170" height="56" rx="14" fill="#121a2b" stroke="#1e293d"/>
+      <text x="85" y="36" fill="#eaf1fb" text-anchor="middle">AmoCRM</text>
+    </g>
+    <g transform="translate(190,0)">
+      <rect x="0" y="0" width="160" height="56" rx="14" fill="#121a2b" stroke="#1e293d"/>
+      <text x="80" y="36" fill="#eaf1fb" text-anchor="middle">Meta Ads</text>
+    </g>
+    <g transform="translate(370,0)">
+      <rect x="0" y="0" width="240" height="56" rx="14" fill="#121a2b" stroke="#1e293d"/>
+      <text x="120" y="36" fill="#eaf1fb" text-anchor="middle">Google Sheets</text>
+    </g>
+    <g transform="translate(630,0)">
+      <rect x="0" y="0" width="110" height="56" rx="14" fill="#121a2b" stroke="#1e293d"/>
+      <text x="55" y="36" fill="#eaf1fb" text-anchor="middle">1С</text>
+    </g>
+    <g transform="translate(760,0)">
+      <rect x="0" y="0" width="150" height="56" rx="14" fill="#121a2b" stroke="#1e293d"/>
+      <text x="75" y="36" fill="#eaf1fb" text-anchor="middle">Kaspi</text>
+    </g>
+  </g>
+</svg>

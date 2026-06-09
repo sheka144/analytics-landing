@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ключ · Отдел продаж — воронка, план/факт, менеджеры, динамика</title>
+<style>
+:root{
+  --bg:#f3f3f8; --panel:#ffffff; --panel2:#f6f5fb; --line:#e7e6f0; --line2:#dddbec;
+  --txt:#1c1a2e; --txt2:#383551; --mut:#6c6885; --mut2:#9a96b3;
+  --vio:#6d28d9; --vio-bg:#f1ebfd; --cyan:#0e8aa8; --cyan-bg:#e4f4f8;
+  --amb:#b06f06; --amb-bg:#fbf1de; --red:#cb4040; --red-bg:#fbe9e9;
+  --good:#138a5e; --good-bg:#e5f4ee; --bad:#cb4040;
+  --r:12px; --shadow:0 1px 2px rgba(28,26,46,.04),0 8px 22px rgba(28,26,46,.05);
+  --font:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Inter,Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:var(--font);line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}button{font-family:var(--font);cursor:pointer;border:none}
+
+.app{display:grid;grid-template-columns:238px 1fr;min-height:100vh}
+.side{background:var(--panel);border-right:1px solid var(--line);padding:20px 14px;display:flex;flex-direction:column;gap:3px;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:11px;padding:4px 8px 18px;border-bottom:1px solid var(--line);margin-bottom:12px}
+.brand .ava{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:#fff;background:var(--vio)}
+.brand .bn{font-weight:700;font-size:15px;line-height:1.1}.brand .bt{font-size:11px;color:var(--mut)}
+.nav-grp{font-size:10.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--mut2);padding:14px 12px 6px}
+.nav-i{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:9px;color:var(--mut);font-size:13.5px;font-weight:600;transition:.14s}
+.nav-i svg{width:17px;height:17px;flex:0 0 auto;stroke:currentColor;fill:none;stroke-width:1.7}
+.nav-i:hover{background:var(--panel2);color:var(--txt2)}
+.nav-i.on{background:var(--vio-bg);color:var(--vio)}
+.side-foot{margin-top:auto;border-top:1px solid var(--line);padding-top:12px}
+.back{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mut);padding:8px;font-weight:600}.back:hover{color:var(--vio)}
+
+.main{display:flex;flex-direction:column;min-width:0}
+.topbar{display:flex;align-items:center;gap:16px;padding:16px 28px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20;flex-wrap:wrap}
+.topbar h1{font-size:19px;font-weight:700;letter-spacing:-.2px}
+.topbar .crumb{font-size:11.5px;color:var(--mut);font-weight:600}
+.topbar .right{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.live{font-size:12px;color:var(--good);display:flex;align-items:center;gap:6px;font-weight:600}
+.live .dot{width:7px;height:7px;border-radius:50%;background:var(--good)}
+.demo-tag{font-size:11px;color:var(--amb);background:var(--amb-bg);border-radius:6px;padding:3px 9px;font-weight:600}
+.sel{background:var(--panel);border:1px solid var(--line);color:var(--txt2);font-size:13px;font-weight:600;padding:8px 12px;border-radius:8px;cursor:pointer}
+.sel:focus{outline:none;border-color:var(--vio)}
+.seg{display:inline-flex;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:3px}
+.seg button{background:none;color:var(--mut);font-size:12.5px;font-weight:600;padding:6px 13px;border-radius:7px;transition:.14s}
+.seg button.on{background:var(--panel);color:var(--vio);box-shadow:var(--shadow)}
+
+.content{padding:22px 28px 46px;display:flex;flex-direction:column;gap:18px}
+.section{display:none;flex-direction:column;gap:18px}.section.on{display:flex}
+
+.kpi-row{display:grid;gap:14px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:15px 16px;box-shadow:var(--shadow)}
+.kpi .k{font-size:11.5px;color:var(--mut);font-weight:600}
+.kpi .v{font-size:22px;font-weight:700;letter-spacing:-.5px;margin-top:8px;font-variant-numeric:tabular-nums}
+.kpi .v small{font-size:13px;color:var(--mut);font-weight:600}
+.kpi .foot{margin-top:6px;font-size:11.5px;font-weight:600}
+.up{color:var(--good)}.down{color:var(--bad)}.flat{color:var(--mut)}
+
+.grid{display:grid;gap:18px;align-items:start}
+.g-2{grid-template-columns:1.4fr 1fr}.g-2e{grid-template-columns:1fr 1fr}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px;box-shadow:var(--shadow)}
+.panel .ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:10px;flex-wrap:wrap}
+.panel .ph h3{font-size:14px;font-weight:700}
+.panel .ph .sub{font-size:11.5px;color:var(--mut);font-weight:500}
+.panel .ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.legend{display:flex;gap:16px;margin-top:8px;font-size:12px;color:var(--mut);font-weight:600;flex-wrap:wrap}
+.legend i{display:inline-block;width:18px;height:3px;border-radius:2px;margin-right:6px;vertical-align:3px}
+.legend i.sq{width:11px;height:11px;border-radius:3px;vertical-align:-1px}
+.legend i.dash{background:none;border-top:2px dashed var(--mut2);height:0}
+
+.chart{width:100%;height:auto;display:block;font-family:var(--font)}
+.chart .grid-l{stroke:var(--line);stroke-width:1}
+.chart .axis-t{fill:var(--mut2);font-size:10.5px}.chart .axis-x{fill:var(--mut);font-size:11px}
+.chart .tgt-l{stroke:var(--mut2);stroke-width:1.2;stroke-dasharray:4 4}
+
+/* funnel scheme */
+.fn{display:flex;flex-direction:column}
+.fn-stage{position:relative;display:flex;justify-content:center;align-items:center;padding-right:120px}
+.fn-stage .bar{height:42px;border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;transition:width .5s;min-width:150px;font-variant-numeric:tabular-nums}
+.fn-stage .meta{position:absolute;right:0;font-size:12px;color:var(--mut);font-weight:600;width:110px;text-align:right}
+.fn-conn{position:relative;height:24px;display:flex;align-items:center;justify-content:center;padding-right:120px}
+.fn-conn .keep{font-size:11px;color:var(--good);font-weight:700}
+.fn-conn .lost{position:absolute;right:0;font-size:11px;color:var(--bad);font-weight:600;width:110px;text-align:right}
+.fn-matrix{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+.mxi{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:13px 15px;display:flex;flex-direction:column;gap:6px}
+.mxi span{font-size:12px;color:var(--mut);font-weight:600}.mxi b{font-size:24px;font-weight:700;color:var(--txt)}
+
+/* tables */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:right;color:var(--mut);font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+.tbl td{padding:11px 10px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}
+.tbl tbody tr:last-child td{border-bottom:none}
+.tbl tbody tr{cursor:pointer;transition:.12s}
+.tbl tbody tr:hover{background:var(--panel2)}
+.tbl tbody tr.sel{background:var(--vio-bg)}
+.who{display:flex;align-items:center;gap:10px}
+.who .ini{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex:0 0 auto}
+.meter{height:8px;border-radius:5px;background:var(--panel2);overflow:hidden;min-width:74px}
+.meter > i{display:block;height:100%;border-radius:5px;transition:width .5s}
+.pill{font-size:11.5px;font-weight:700;padding:2px 9px;border-radius:7px;font-variant-numeric:tabular-nums}
+.pill.g{background:var(--good-bg);color:var(--good)}.pill.r{background:var(--red-bg);color:var(--bad)}.pill.y{background:var(--amb-bg);color:var(--amb)}
+
+/* award cards */
+.award{border-radius:var(--r);padding:16px 18px;border:1px solid var(--line);box-shadow:var(--shadow)}
+.award h4{font-size:12px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.award.good h4{color:var(--good)}.award.bad h4{color:var(--bad)}
+.award .ar{display:flex;align-items:center;gap:11px;padding:8px 0;border-bottom:1px solid var(--line)}
+.award .ar:last-child{border-bottom:none}
+.award .ini{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex:0 0 auto}
+.award .nm{font-size:13.5px;font-weight:600;flex:1}
+.award .why{font-size:11.5px;color:var(--mut)}
+.award .mval{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums}
+
+/* bullets план/факт */
+.bullets{display:flex;flex-direction:column;gap:15px;padding:4px 0}
+.bul{display:grid;grid-template-columns:150px 1fr 200px;align-items:center;gap:16px}
+.bul .bl{font-size:13px;font-weight:700;color:var(--txt2)}
+.bul .btrack{position:relative;height:26px;background:var(--panel2);border-radius:7px}
+.bul .bfact{position:absolute;left:0;top:0;height:100%;border-radius:7px}
+.bul .bplan{position:absolute;top:-4px;width:3px;height:34px;background:var(--mut);border-radius:2px}
+.bul .bplan::after{content:"план";position:absolute;top:-15px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--mut);font-weight:700;white-space:nowrap}
+.bul .bval{font-size:12.5px;text-align:right;font-variant-numeric:tabular-nums;color:var(--mut);font-weight:600}
+.bul .bval b{font-weight:700;margin-left:6px}
+
+/* pace */
+.pace{display:flex;flex-direction:column;gap:14px}
+.pace .big{display:flex;align-items:baseline;gap:10px}
+.pace .big b{font-size:38px;font-weight:700;letter-spacing:-1px}.pace .big span{font-size:13px;color:var(--mut);font-weight:600}
+.pacebar{height:30px;border-radius:8px;background:var(--panel2);position:relative;overflow:hidden}
+.pacebar .pf{position:absolute;left:0;top:0;height:100%;background:var(--vio);border-radius:8px;display:flex;align-items:center;padding:0 12px;color:#fff;font-size:12px;font-weight:700}
+.pacebar .pp{position:absolute;top:-4px;width:3px;height:38px;background:var(--txt);border-radius:2px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stat{background:var(--panel2);border-radius:10px;padding:13px 15px}
+.stat .sk{font-size:11.5px;color:var(--mut);font-weight:600}.stat .sv{font-size:20px;font-weight:700;margin-top:4px;font-variant-numeric:tabular-nums}
+
+/* доступность: курсор на кликабельном, видимый фокус, reduced-motion */
+.nav-i,.tbl tbody tr{cursor:pointer}
+:where(.nav-i,.seg button,.sel,.back):focus-visible{outline:2px solid #2563eb;outline-offset:2px;border-radius:8px}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}}
+@media(max-width:980px){.app{grid-template-columns:1fr}.side{display:none}.g-2,.g-2e,.row2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><div class="ava">К</div><div><div class="bn">Ключ</div><div class="bt">агентство недвижимости</div></div></div>
+    <div class="nav-grp">Отдел продаж</div>
+    <div class="nav-i on" data-sec="ov"><svg viewBox="0 0 24 24"><path d="M3 4h18l-7 8v6l-4 2v-8z"/></svg> Воронка</div>
+    <div class="nav-i" data-sec="mgr"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5"/><circle cx="17.5" cy="9" r="2.5"/><path d="M16 14c3 0 5 2 5 5"/></svg> Менеджеры</div>
+    <div class="nav-i" data-sec="pf"><svg viewBox="0 0 24 24"><path d="M22 11.1V12a10 10 0 11-5.9-9.1"/><path d="M22 4L12 14l-3-3"/></svg> План / факт</div>
+    <div class="nav-i" data-sec="dyn"><svg viewBox="0 0 24 24"><path d="M3 17l5-5 4 4 8-9"/><path d="M17 7h4v4"/></svg> Динамика</div>
+    <div class="side-foot"><a class="back" href="../index.html">← Вернуться на сайт</a></div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div><div class="crumb">Ключ / Отдел продаж / <span id="crumb">Воронка</span></div><h1 id="title">Воронка продаж: где теряются сделки</h1></div>
+      <div class="right"><span class="demo-tag">демо · обезличено</span><span class="live"><span class="dot"></span>обновлено</span></div>
+    </div>
+
+    <div class="content">
+
+      <!-- ВОРОНКА -->
+      <div class="section on" data-sec="ov">
+        <div class="kpi-row" style="grid-template-columns:repeat(5,1fr)">
+          <div class="kpi"><div class="k">Лиды</div><div class="v">1 124</div><div class="foot up">▲ 7% м/м</div></div>
+          <div class="kpi"><div class="k">Сделки</div><div class="v">96</div><div class="foot down">84% плана</div></div>
+          <div class="kpi"><div class="k">Конверсия лид→сделка</div><div class="v">8,5<small>%</small></div></div>
+          <div class="kpi"><div class="k">Выручка (комиссии)</div><div class="v">81,6<small> млн ₸</small></div></div>
+          <div class="kpi"><div class="k">Дозваниваемость</div><div class="v">62<small>%</small></div><div class="foot flat">1 980 из 3 200</div></div>
+        </div>
+        <div class="grid g-2">
+          <div class="panel">
+            <div class="ph"><h3>Воронка: от лида до сделки</h3><span class="sub">конверсия и потери на каждом шаге</span></div>
+            <div id="funnel"></div>
+            <div class="fn-matrix" id="fun-matrix"></div>
+          </div>
+          <div class="panel">
+            <div class="ph"><h3>Темп к плану по сделкам</h3><span class="sub">прошло 26 из 30 дней</span></div>
+            <div class="pace">
+              <div class="big"><b>96</b><span>/ 114 план · прогноз 111 (97%)</span></div>
+              <div class="pacebar"><div class="pf" style="width:84%">факт 96</div><div class="pp" style="left:100%"></div></div>
+              <div class="row2">
+                <div class="stat"><div class="sk">Темп / день</div><div class="sv">3,7 сделки</div></div>
+                <div class="stat"><div class="sk">Нужно до плана</div><div class="sv">18 за 4 дня</div></div>
+                <div class="stat"><div class="sk">Средний чек</div><div class="sv">850 тыс ₸</div></div>
+                <div class="stat"><div class="sk">Цикл сделки</div><div class="sv">14 дней</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- МЕНЕДЖЕРЫ -->
+      <div class="section" data-sec="mgr">
+        <div class="grid g-2e">
+          <div class="award good" id="award-top"></div>
+          <div class="award bad" id="award-bad"></div>
+        </div>
+        <div class="panel">
+          <div class="ph"><h3>Менеджеры отдела продаж</h3><span class="sub">клик по менеджеру — его воронка ниже</span></div>
+          <table class="tbl" id="mgrs"><thead><tr><th>Менеджер</th><th>Лиды</th><th>Дозвоны</th><th>Показы</th><th>Сделки</th><th style="width:150px">Конверсия</th><th>Сумма</th><th>% плана</th></tr></thead><tbody></tbody></table>
+        </div>
+        <div class="grid g-2">
+          <div class="panel">
+            <div class="ph"><h3 id="mf-h">Воронка — все менеджеры</h3></div>
+            <div id="funnel2"></div>
+          </div>
+          <div class="panel">
+            <div class="ph"><h3>Выполнение плана по сделкам</h3></div>
+            <div id="chart-mgr"></div>
+            <div class="legend"><span><i class="sq" style="background:var(--vio)"></i>факт</span><span><i style="border-left:2px solid var(--txt);width:0;height:12px;display:inline-block;margin-right:8px;vertical-align:-2px"></i>план</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ПЛАН/ФАКТ -->
+      <div class="section" data-sec="pf">
+        <div class="panel">
+          <div class="ph">
+            <h3>Выполнение плана по этапам</h3>
+            <div class="ctl">
+              <select class="sel" id="pf-mgr"><option value="all">Весь отдел</option><option value="0">Алия С.</option><option value="1">Данияр Т.</option><option value="2">Марат К.</option><option value="3">Жанна Е.</option><option value="4">Олег В.</option></select>
+              <select class="sel" id="pf-period"><option value="1">Текущий месяц</option><option value="0.95">Прошлый месяц</option><option value="3">Квартал</option><option value="11">С начала года</option></select>
+            </div>
+          </div>
+          <div class="kpi-row" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px">
+            <div class="kpi"><div class="k">Сделки к плану</div><div class="v" id="pf-deals">84<small>%</small></div></div>
+            <div class="kpi"><div class="k">Сумма к плану</div><div class="v" id="pf-sum">86<small>%</small></div></div>
+            <div class="kpi"><div class="k">Лиды к плану</div><div class="v" id="pf-leads">107<small>%</small></div></div>
+            <div class="kpi"><div class="k">Прогноз на конец</div><div class="v" id="pf-fcast">97<small>%</small></div></div>
+          </div>
+          <div class="bullets" id="pf-bullets"></div>
+        </div>
+        <div class="panel">
+          <div class="ph"><h3>Воронка: план · факт · выполнение</h3></div>
+          <table class="tbl" id="pf-table"><thead><tr><th>Этап</th><th>План</th><th>Факт</th><th>Выполнение</th><th>Конв. факт</th></tr></thead><tbody></tbody></table>
+        </div>
+      </div>
+
+      <!-- ДИНАМИКА -->
+      <div class="section" data-sec="dyn">
+        <div class="panel">
+          <div class="ph">
+            <h3 id="dyn-h">Сделки по дням</h3>
+            <div class="ctl">
+              <select class="sel" id="dyn-metric"><option value="deals">Сделки</option><option value="leads">Лиды</option><option value="rev">Выручка</option></select>
+              <div class="seg" id="dyn-gran"><button data-g="day" class="on">День</button><button data-g="week">Неделя</button><button data-g="month">Месяц</button></div>
+            </div>
+          </div>
+          <div id="chart-dyn"></div>
+        </div>
+        <div class="panel">
+          <div class="ph"><h3>Накопленные сделки: факт против плана</h3><span class="sub">успевает ли отдел к плану месяца</span></div>
+          <div id="chart-burn"></div>
+          <div class="legend"><span><i style="background:var(--vio)"></i>факт накопленным</span><span><i class="dash"></i>план накопленным</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+function ru(n){return Math.round(n).toLocaleString('ru-RU')}
+function cw(elId){const e=document.getElementById(elId);return Math.max((e&&e.clientWidth)||720,360)}
+
+/* ---------- движок графиков: на всю ширину, фикс. высота ---------- */
+function lineChart(elId,o){
+  const W=cw(elId),H=o.h||280,pL=48,pR=16,pT=16,pB=34,pw=W-pL-pR,ph=H-pT-pB,ticks=o.yTicks||4,ymax=o.yMax,ymin=o.yMin||0;
+  const x=i=>pL+pw*i/(o.labels.length-1),y=v=>pT+ph*(1-(v-ymin)/(ymax-ymin));
+  let s=`<svg class="chart" viewBox="0 0 ${W} ${H}">`;
+  for(let t=0;t<=ticks;t++){const yy=pT+ph*t/ticks,val=ymin+(ymax-ymin)*(1-t/ticks);
+    s+=`<line class="grid-l" x1="${pL}" y1="${yy}" x2="${pL+pw}" y2="${yy}"/><text class="axis-t" x="${pL-8}" y="${yy+3}" text-anchor="end">${o.yFmt?o.yFmt(val):Math.round(val)}</text>`;}
+  o.labels.forEach((l,i)=>s+=`<text class="axis-x" x="${x(i)}" y="${H-12}" text-anchor="middle">${l}</text>`);
+  (o.series||[]).forEach(se=>{
+    const pts=se.data.map((v,i)=>`${x(i)},${y(v)}`).join(' ');
+    s+=`<polyline points="${pts}" fill="none" stroke="${se.color}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"${se.dash?' stroke-dasharray="6 5"':''}/>`;
+    se.data.forEach((v,i)=>s+=`<circle cx="${x(i)}" cy="${y(v)}" r="3.4" fill="#fff" stroke="${se.color}" stroke-width="2"/>`);
+  });
+  s+=`</svg>`;document.getElementById(elId).innerHTML=s;
+}
+/* сглаженный area-график (как в примере) */
+function smooth(p){if(p.length<2)return p.map(q=>q.join(',')).join(' L ');let d=`${p[0][0]} ${p[0][1]}`;
+  for(let i=0;i<p.length-1;i++){const a=p[i-1]||p[i],b=p[i],c=p[i+1],e=p[i+2]||p[i+1];
+    d+=` C ${b[0]+(c[0]-a[0])/6} ${b[1]+(c[1]-a[1])/6}, ${c[0]-(e[0]-b[0])/6} ${c[1]-(e[1]-b[1])/6}, ${c[0]} ${c[1]}`;}return d;}
+function areaChart(elId,o){
+  const W=cw(elId),H=300,pL=48,pR=18,pT=18,pB=o.rot?54:34,pw=W-pL-pR,ph=H-pT-pB,ticks=4;
+  const ymax=o.yMax||Math.max(...o.data)*1.25||1;
+  const x=i=>pL+pw*i/(o.data.length-1),y=v=>pT+ph*(1-v/ymax);
+  const P=o.data.map((v,i)=>[x(i),y(v)]);
+  let s=`<svg class="chart" viewBox="0 0 ${W} ${H}">`;
+  s+=`<defs><linearGradient id="ar_${elId}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${o.color}" stop-opacity="0.30"/><stop offset="1" stop-color="${o.color}" stop-opacity="0.02"/></linearGradient></defs>`;
+  for(let t=0;t<=ticks;t++){const yy=pT+ph*t/ticks,val=ymax*(1-t/ticks);
+    s+=`<line class="grid-l" x1="${pL}" y1="${yy}" x2="${pL+pw}" y2="${yy}"/><text class="axis-t" x="${pL-8}" y="${yy+3}" text-anchor="end">${o.yFmt?o.yFmt(val):Math.round(val)}</text>`;}
+  const lineD=smooth(P);
+  s+=`<path d="M ${lineD} L ${x(o.data.length-1)} ${pT+ph} L ${x(0)} ${pT+ph} Z" fill="url(#ar_${elId})"/>`;
+  s+=`<path d="M ${lineD}" fill="none" stroke="${o.color}" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>`;
+  P.forEach((p,i)=>{if(o.data.length<=16)s+=`<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="#fff" stroke="${o.color}" stroke-width="2"/>`;});
+  o.labels.forEach((l,i)=>{const xx=x(i);
+    if(o.rot)s+=`<text class="axis-x" x="${xx}" y="${H-14}" text-anchor="end" transform="rotate(-40 ${xx} ${H-14})">${l}</text>`;
+    else s+=`<text class="axis-x" x="${xx}" y="${H-12}" text-anchor="middle">${l}</text>`;});
+  s+=`</svg>`;document.getElementById(elId).innerHTML=s;
+}
+/* горизонтальные бары факт + метка плана, на всю ширину */
+function hbarPlan(elId,rows){
+  const W=cw(elId),rowH=38,pT=8,pL=104,pR=64,H=pT*2+rows.length*rowH,pw=W-pL-pR;
+  const max=Math.max(...rows.map(r=>Math.max(r[1],r[2])))*1.12;
+  let s=`<svg class="chart" viewBox="0 0 ${W} ${H}">`;
+  rows.forEach((r,i)=>{const y=pT+i*rowH+6,bw=r[1]/max*pw,px=pL+r[2]/max*pw;
+    s+=`<text x="${pL-10}" y="${y+16}" text-anchor="end" style="fill:var(--txt2);font-size:12px;font-weight:600">${r[0]}</text>`;
+    s+=`<rect x="${pL}" y="${y}" width="${pw}" height="24" rx="6" fill="var(--panel2)"/>`;
+    s+=`<rect x="${pL}" y="${y}" width="${Math.max(bw,2)}" height="24" rx="6" fill="${r[3]}"/>`;
+    s+=`<line x1="${px}" y1="${y-3}" x2="${px}" y2="${y+27}" stroke="var(--txt)" stroke-width="2"/>`;
+    s+=`<text x="${pL+pw+10}" y="${y+16}" style="fill:var(--mut);font-size:11.5px;font-weight:700">${r[1]}/${r[2]}</text>`;});
+  s+=`</svg>`;document.getElementById(elId).innerHTML=s;
+}
+
+/* ---------- данные ---------- */
+// менеджер: [имя,цвет,лиды,дозвоны,показы,сделки,конв%,сумма(млн),планСделок, воронка[6]]
+const M=[
+  ["Алия С.","#6d28d9",240,150,72,30,12.5,25.5,28,[240,165,98,72,40,30]],
+  ["Данияр Т.","#0e8aa8",228,140,66,24,10.5,20.4,26,[228,150,88,66,34,24]],
+  ["Марат К.","#cb4040",251,120,40,9,3.6,7.6,22,[251,120,55,40,18,9]],
+  ["Жанна Е.","#b06f06",205,128,58,18,8.8,15.3,20,[205,132,74,58,30,18]],
+  ["Олег В.","#138a5e",200,118,52,15,7.5,12.8,18,[200,120,66,52,26,15]]
+];
+const STAGES=["Лиды","Квалификация","Назначен показ","Проведён показ","Переговоры","Сделки"];
+const TEAM_FUN=[["Лиды",1124],["Квалификация",720],["Назначен показ",512],["Проведён показ",360],["Переговоры",188],["Сделка",96]];
+const PF_TEAM=[[1050,1124],[700,720],[560,512],[400,360],[210,188],[114,96]]; // [план,факт] по этапам
+// динамика
+function days(n){const out=[];const d=new Date(2026,5,8);for(let i=n-1;i>=0;i--){const t=new Date(d);t.setDate(d.getDate()-i);out.push(('0'+t.getDate()).slice(-2)+'.'+('0'+(t.getMonth()+1)).slice(-2));}return out;}
+const DYN={
+  day:{labels:days(14),deals:[4,3,5,4,6,3,5,2,4,5,3,6,4,7],leads:[42,38,55,46,60,40,52,33,48,54,39,61,45,72],rev:null},
+  week:{labels:["07.04","14.04","21.04","28.04","05.05","12.05","19.05","26.05","02.06","тек."],deals:[18,22,19,24,21,25,23,20,26,24],leads:[210,238,205,256,228,262,240,224,272,250],rev:null},
+  month:{labels:["Янв","Фев","Мар","Апр","Май","Июн"],deals:[72,80,76,88,101,96],leads:[980,1040,1010,1080,1150,1124],rev:null}
+};
+Object.values(DYN).forEach(d=>d.rev=d.deals.map(v=>+(v*0.85).toFixed(1)));
+
+let curMgr="all", curGran="day", curMetric="deals";
+function set(id,v){const e=document.getElementById(id);if(e)e.innerHTML=v}
+function grad(i){return ['#6d28d9','#7c3aed','#8b5cf6','#1d8aa8','#0e8aa8','#138a5e'][Math.min(i,5)]}
+function mx(l,v){return `<div class="mxi"><span>${l}</span><b>${v.toFixed(0)}%</b></div>`}
+function drawFunnel(elId,st,matrixEl){
+  const leads=st[0][1],closed=st[st.length-1][1];let h=`<div class="fn">`;
+  st.forEach((s,i)=>{
+    if(i>0){const lost=st[i-1][1]-s[1],lp=lost/st[i-1][1]*100,keep=s[1]/st[i-1][1]*100;
+      h+=`<div class="fn-conn"><span class="keep">↓ ${keep.toFixed(0)}% дошли</span><span class="lost">потеряно −${ru(lost)} (−${lp.toFixed(0)}%)</span></div>`;}
+    const w=Math.max(s[1]/leads*100,18);
+    h+=`<div class="fn-stage"><div class="bar" style="width:${w}%;background:${grad(i)}">${s[0]} · ${ru(s[1])}</div><div class="meta">${(s[1]/leads*100).toFixed(0)}% от лидов</div></div>`;
+  });
+  h+='</div>';document.getElementById(elId).innerHTML=h;
+  if(matrixEl){const qual=st[1][1],show=st[3][1];
+    document.getElementById(matrixEl).innerHTML=mx("Лид → Сделка",closed/leads*100)+mx("Квалификация → Сделка",closed/qual*100)+mx("Проведён показ → Сделка",closed/show*100);}
+}
+function execPct(m){return m[5]/m[8]*100}
+function renderAwards(){
+  const sorted=[...M].sort((a,b)=>execPct(b)-execPct(a));
+  const top=sorted.slice(0,2),bad=sorted.slice(-2).reverse();
+  const card=(m,why)=>`<div class="ar"><div class="ini" style="background:${m[1]}">${m[0].split(' ')[0][0]}${m[0].split(' ')[1][0]}</div><div class="nm">${m[0]}<div class="why">${why(m)}</div></div><div class="mval" style="color:${execPct(m)>=95?'var(--good)':'var(--bad)'}">${execPct(m).toFixed(0)}%</div></div>`;
+  set("award-top",`<h4>▲ Лучшие по выполнению плана</h4>`+top.map(m=>card(m,m=>`${m[5]} сделок · конверсия ${m[6]}% · ${m[7]} млн`)).join(""));
+  set("award-bad",`<h4>▼ Зона риска</h4>`+bad.map(m=>card(m,m=>`${m[5]} сделок · конверсия ${m[6]}% · план ${m[8]}`)).join(""));
+}
+function renderMgrs(){
+  document.querySelector("#mgrs tbody").innerHTML=M.map((m,i)=>{
+    const w=Math.min(m[6]*7,100),col=m[6]<5?'var(--bad)':m[6]<9?'var(--amb)':'var(--good)';
+    const pfv=Math.round(execPct(m));
+    return `<tr data-i="${i}"><td><div class="who"><div class="ini" style="background:${m[1]}">${m[0].split(' ')[0][0]}${m[0].split(' ')[1][0]}</div>${m[0]}</div></td>
+      <td>${m[2]}</td><td>${m[3]}</td><td>${m[4]}</td><td><b>${m[5]}</b></td>
+      <td><div style="display:flex;align-items:center;gap:10px"><div class="meter"><i style="width:${w}%;background:${col}"></i></div>${m[6]}%</div></td>
+      <td>${m[7]} млн</td><td><span class="pill ${pfv<60?'r':pfv<95?'y':'g'}">${pfv}%</span></td></tr>`;
+  }).join("");
+  renderAwards();
+  hbarPlan("chart-mgr",M.map(m=>[m[0].split(' ')[0],m[5],m[8],m[1]]));
+}
+function selectMgr(sel){
+  curMgr=sel;
+  if(sel==="all"){set("mf-h","Воронка — все менеджеры");drawFunnel("funnel2",TEAM_FUN,null);
+    document.querySelectorAll("#mgrs tbody tr").forEach(x=>x.classList.remove("sel"));}
+  else{const m=M[+sel];set("mf-h","Воронка — "+m[0]);
+    drawFunnel("funnel2",STAGES.map((s,i)=>[s,m[9][i]]),null);
+    document.querySelectorAll("#mgrs tbody tr").forEach(x=>x.classList.toggle("sel",x.dataset.i==sel));}
+}
+function pfData(sel,mul){
+  if(sel==="all")return PF_TEAM.map(p=>[Math.round(p[0]*mul),Math.round(p[1]*mul)]);
+  const m=M[+sel],ex=m[5]/m[8];
+  return m[9].map(f=>[Math.round(f/ex*mul),Math.round(f*mul)]);
+}
+function renderPf(){
+  const sel=document.getElementById("pf-mgr").value, mul=+document.getElementById("pf-period").value;
+  const d=pfData(sel,mul);
+  document.getElementById("pf-bullets").innerHTML=d.map((p,i)=>{
+    const plan=p[0],fact=p[1],scale=Math.max(plan,fact)*1.15,fw=fact/scale*100,pw=plan/scale*100,dd=(fact/plan*100-100);
+    const col=dd>=0?'var(--good)':'var(--bad)';
+    return `<div class="bul"><div class="bl">${STAGES[i]}</div><div class="btrack"><div class="bfact" style="width:${fw}%;background:${col}"></div><div class="bplan" style="left:${pw}%"></div></div><div class="bval">${ru(fact)} / ${ru(plan)} <b style="color:${col}">${dd>=0?'+':''}${dd.toFixed(0)}%</b></div></div>`;
+  }).join("");
+  document.querySelector("#pf-table tbody").innerHTML=d.map((p,i)=>{
+    const exec=p[1]/p[0]*100,cv=i>0?p[1]/d[i-1][1]*100:100;
+    return `<tr><td><b>${STAGES[i]}</b></td><td>${ru(p[0])}</td><td>${ru(p[1])}</td><td><span class="pill ${exec<85?'r':exec<100?'y':'g'}">${exec.toFixed(0)}%</span></td><td>${i>0?cv.toFixed(0)+'%':'—'}</td></tr>`;
+  }).join("");
+  const deals=d[5],leads=d[0],dealsP=deals[1]/deals[0]*100;
+  set("pf-deals",dealsP.toFixed(0)+'<small>%</small>');
+  set("pf-sum",Math.round(dealsP*1.02)+'<small>%</small>');
+  set("pf-leads",(leads[1]/leads[0]*100).toFixed(0)+'<small>%</small>');
+  set("pf-fcast",Math.min(Math.round(dealsP*1.154),140)+'<small>%</small>');
+}
+function renderDyn(){
+  const d=DYN[curGran],data=d[curMetric];
+  const fmt=curMetric==='rev'?(v=>v.toFixed(0)+'М'):(v=>Math.round(v));
+  areaChart("chart-dyn",{labels:d.labels,data,color:"var(--vio)",yFmt:fmt,rot:curGran==='day'});
+  lineChart("chart-burn",{labels:["Н1","Н2","Н3","Н4 (тек.)"],yMax:120,yTicks:4,h:260,
+    series:[{color:"var(--vio)",data:[22,46,70,96]},{color:"var(--mut2)",dash:true,data:[29,57,86,114]}]});
+}
+const TITLES={ov:["Воронка","Воронка продаж: где теряются сделки"],mgr:["Менеджеры","Топ и зона риска отдела"],pf:["План / факт","Выполнение плана по этапам"],dyn:["Динамика","Движение продаж по дням, неделям, месяцам"]};
+const DYNH={deals:"Сделки",leads:"Лиды",rev:"Выручка"},DYNG={day:"по дням",week:"по неделям",month:"по месяцам"};
+function showSection(sec){
+  document.querySelectorAll(".nav-i").forEach(n=>n.classList.toggle("on",n.dataset.sec===sec));
+  document.querySelectorAll(".section").forEach(s=>s.classList.toggle("on",s.dataset.sec===sec));
+  set("crumb",TITLES[sec][0]);set("title",TITLES[sec][1]);
+  if(sec==="mgr"){renderMgrs();selectMgr(curMgr);}
+  if(sec==="pf"){renderPf();}
+  if(sec==="dyn"){renderDyn();}
+}
+document.querySelectorAll(".nav-i").forEach(n=>n.addEventListener("click",()=>showSection(n.dataset.sec)));
+document.querySelector("#mgrs").addEventListener("click",e=>{const tr=e.target.closest("tr[data-i]");if(tr)selectMgr(tr.dataset.i);});
+document.getElementById("pf-mgr").addEventListener("change",renderPf);
+document.getElementById("pf-period").addEventListener("change",renderPf);
+document.getElementById("dyn-metric").addEventListener("change",e=>{curMetric=e.target.value;set("dyn-h",DYNH[curMetric]+' '+DYNG[curGran]);renderDyn();});
+document.getElementById("dyn-gran").addEventListener("click",e=>{if(e.target.dataset.g){curGran=e.target.dataset.g;document.querySelectorAll("#dyn-gran button").forEach(b=>b.classList.remove("on"));e.target.classList.add("on");set("dyn-h",DYNH[curMetric]+' '+DYNG[curGran]);renderDyn();}});
+let rt;window.addEventListener("resize",()=>{clearTimeout(rt);rt=setTimeout(()=>{const cur=document.querySelector(".nav-i.on").dataset.sec;showSection(cur);},180);});
+drawFunnel("funnel",TEAM_FUN,"fun-matrix");
+</script>
+</body>
+</html>

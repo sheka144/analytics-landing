@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Тепло · Финансы — P&L, бюджет, денежный поток, юнит-экономика</title>
+<style>
+:root{
+  --bg:#f3f2ee; --panel:#fffefb; --panel2:#f7f5f0; --line:#e6e3da; --line2:#dcd7cb;
+  --txt:#1b261f; --txt2:#39463d; --mut:#6f796f; --mut2:#9aa298;
+  --grn:#0c8f63; --grn-bg:#e5f4ed; --slate:#3a6589; --slate-bg:#e8eff5; --slate2:#5b86a8;
+  --amb:#b07207; --amb-bg:#fbf0db; --red:#c5453a; --red-bg:#fbe9e7; --vio:#7b5ea7;
+  --good:#0c8f63; --bad:#c5453a;
+  --r:12px; --shadow:0 1px 2px rgba(27,38,31,.04),0 8px 22px rgba(27,38,31,.05);
+  --font:"Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,Inter,Arial,sans-serif;
+  --mono:"SF Mono",ui-monospace,Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:var(--font);line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}button{font-family:var(--font);cursor:pointer;border:none}
+
+.app{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+.side{background:var(--panel);border-right:1px solid var(--line);padding:20px 14px;display:flex;flex-direction:column;gap:3px;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:11px;padding:4px 8px 18px;border-bottom:1px solid var(--line);margin-bottom:12px}
+.brand .ava{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:#fff;background:var(--grn)}
+.brand .bn{font-weight:700;font-size:15px;line-height:1.1}.brand .bt{font-size:11px;color:var(--mut)}
+.nav-grp{font-size:10.5px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--mut2);padding:14px 12px 6px}
+.nav-i{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:9px;color:var(--mut);font-size:13.5px;font-weight:600;transition:.14s}
+.nav-i svg{width:17px;height:17px;flex:0 0 auto;stroke:currentColor;fill:none;stroke-width:1.7}
+.nav-i:hover{background:var(--panel2);color:var(--txt2)}
+.nav-i.on{background:var(--grn-bg);color:var(--grn)}
+.side-foot{margin-top:auto;border-top:1px solid var(--line);padding-top:12px}
+.back{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mut);padding:8px;font-weight:600}.back:hover{color:var(--grn)}
+
+.main{display:flex;flex-direction:column;min-width:0}
+.topbar{display:flex;align-items:center;gap:16px;padding:16px 28px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20;flex-wrap:wrap}
+.topbar h1{font-size:19px;font-weight:700;letter-spacing:-.2px}
+.topbar .crumb{font-size:11.5px;color:var(--mut);font-weight:600}
+.topbar .right{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.live{font-size:12px;color:var(--grn);display:flex;align-items:center;gap:6px;font-weight:600}
+.live .dot{width:7px;height:7px;border-radius:50%;background:var(--grn)}
+.demo-tag{font-size:11px;color:var(--amb);background:var(--amb-bg);border-radius:6px;padding:3px 9px;font-weight:600}
+.sel{background:var(--panel);border:1px solid var(--line);color:var(--txt2);font-size:13px;font-weight:600;padding:8px 12px;border-radius:8px;cursor:pointer}
+.sel:focus{outline:none;border-color:var(--grn)}
+
+.content{padding:22px 28px 46px;display:flex;flex-direction:column;gap:18px}
+.section{display:none;flex-direction:column;gap:18px}.section.on{display:flex}
+
+.kpi-row{display:grid;gap:14px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:15px 16px;box-shadow:var(--shadow)}
+.kpi .k{font-size:11.5px;color:var(--mut);font-weight:600}
+.kpi .v{font-size:22px;font-weight:700;letter-spacing:-.5px;margin-top:8px;font-variant-numeric:tabular-nums}
+.kpi .v small{font-size:13px;color:var(--mut);font-weight:600}
+.kpi .foot{margin-top:6px;font-size:11.5px;font-weight:600}
+.up{color:var(--good)}.down{color:var(--bad)}.flat{color:var(--mut)}
+
+.grid{display:grid;gap:18px;align-items:start}
+.g-2{grid-template-columns:1.25fr 1fr}.g-2e{grid-template-columns:1fr 1fr}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px;box-shadow:var(--shadow)}
+.panel .ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:10px;flex-wrap:wrap}
+.panel .ph h3{font-size:14px;font-weight:700}
+.panel .ph .sub{font-size:11.5px;color:var(--mut);font-weight:500}
+.legend{display:flex;gap:16px;margin-top:8px;font-size:12px;color:var(--mut);font-weight:600;flex-wrap:wrap}
+.legend i{display:inline-block;width:18px;height:3px;border-radius:2px;margin-right:6px;vertical-align:3px}
+.legend i.sq{width:11px;height:11px;border-radius:3px;vertical-align:-1px}
+.legend i.dash{background:none;border-top:2px dashed var(--mut2);height:0}
+
+.chart{width:100%;max-width:720px;height:auto;display:block;margin:0 auto;font-family:var(--font)}
+.bullets{display:flex;flex-direction:column;gap:15px;padding:4px 0}
+.bul{display:grid;grid-template-columns:130px 1fr 200px;align-items:center;gap:16px}
+.bul .bl{font-size:13px;font-weight:700;color:var(--txt2)}
+.bul .btrack{position:relative;height:26px;background:var(--panel2);border-radius:7px}
+.bul .bfact{position:absolute;left:0;top:0;height:100%;border-radius:7px;background:var(--grn)}
+.bul .bplan{position:absolute;top:-4px;width:3px;height:34px;background:var(--slate);border-radius:2px}
+.bul .bplan::after{content:"план";position:absolute;top:-15px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--slate);font-weight:700;white-space:nowrap}
+.bul .bval{font-size:12.5px;text-align:right;font-variant-numeric:tabular-nums;color:var(--mut);font-weight:600}
+.bul .bval b{font-weight:700;margin-left:6px}
+.chart .grid-l{stroke:var(--line);stroke-width:1}
+.chart .axis-t{fill:var(--mut2);font-size:10.5px}
+.chart .axis-x{fill:var(--mut);font-size:10.5px}
+.chart .tgt-l{stroke:var(--mut2);stroke-width:1.2;stroke-dasharray:4 4}
+.chart .conn{stroke:var(--mut2);stroke-width:1;stroke-dasharray:2 3}
+.chart .vlab{fill:var(--txt2);font-size:10px;font-weight:700}
+.chart .mk{fill:var(--txt);font-size:10.5px;font-weight:700}
+
+/* P&L statement */
+.pnl{width:100%;border-collapse:collapse;font-size:13px}
+.pnl td{padding:8px 10px;font-variant-numeric:tabular-nums}
+.pnl td:nth-child(2){text-align:right;font-weight:600}
+.pnl td:nth-child(3){text-align:right;color:var(--mut);font-size:11.5px;width:64px}
+.pnl tr.head td{font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:var(--mut2);font-weight:700;padding-top:14px;padding-bottom:4px}
+.pnl tr.item td:first-child{padding-left:22px;color:var(--txt2)}
+.pnl tr.item td:nth-child(2){font-weight:500}
+.pnl tr.minus td:nth-child(2){color:var(--red)}
+.pnl tr.sub td{border-top:1px solid var(--line2);font-weight:700;padding-top:9px}
+.pnl tr.key td{background:var(--slate-bg);font-weight:700}
+.pnl tr.key td:first-child{color:var(--slate);border-radius:7px 0 0 7px}
+.pnl tr.key td:last-child{border-radius:0 7px 7px 0}
+.pnl tr.total td{background:var(--grn-bg);font-weight:700}
+.pnl tr.total td:first-child{color:var(--grn);border-radius:7px 0 0 7px;font-size:14px}
+.pnl tr.total td:nth-child(2){color:var(--grn);font-size:15px}
+.pnl tr.total td:last-child{border-radius:0 7px 7px 0}
+
+/* generic table */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:right;color:var(--mut);font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+.tbl td{padding:10px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}
+.tbl tbody tr:last-child td{border-bottom:none}
+.tbl tr.bold td{font-weight:700;background:var(--panel2)}
+.var-f{color:var(--good);font-weight:700}.var-u{color:var(--bad);font-weight:700}
+.tag{font-size:10px;font-weight:700;padding:1px 6px;border-radius:5px}
+.tag.f{background:var(--grn-bg);color:var(--good)}.tag.u{background:var(--red-bg);color:var(--bad)}
+
+/* location cards */
+.loc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.loc{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--grn);border-radius:var(--r);padding:18px;box-shadow:var(--shadow);cursor:pointer;transition:.14s}
+.loc:hover{transform:translateY(-2px)}
+.loc.warn{border-left-color:var(--red)}
+.loc .lh{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.loc .lh .nm{font-size:15px;font-weight:700}
+.loc .lh .rk{font-size:11px;font-weight:700;color:var(--mut);background:var(--panel2);border-radius:6px;padding:3px 8px}
+.loc .lkpi{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.loc .lkpi .lk{font-size:11px;color:var(--mut);font-weight:600}
+.loc .lkpi .lv{font-size:17px;font-weight:700;margin-top:3px;font-variant-numeric:tabular-nums}
+.loc .lbar{height:8px;border-radius:5px;background:var(--panel2);overflow:hidden}
+.loc .lbar > i{display:block;height:100%;border-radius:5px}
+.loc .lcap{font-size:11px;color:var(--mut);margin-top:7px;display:flex;justify-content:space-between}
+
+/* unit econ */
+.ue-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.lc{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.lc .nm{width:120px;font-size:13px;font-weight:600;color:var(--txt2)}
+.lc .track{flex:1;background:var(--panel2);border-radius:7px;height:28px;overflow:hidden}
+.lc .fill{height:100%;border-radius:7px;display:flex;align-items:center;padding:0 12px;color:#fff;font-weight:700;font-size:12.5px;font-variant-numeric:tabular-nums;min-width:60px}
+.ratio{display:flex;align-items:baseline;gap:10px;margin-top:6px}
+.ratio b{font-size:34px;font-weight:700;color:var(--grn);letter-spacing:-1px}
+.ratio span{font-size:13px;color:var(--mut);font-weight:600}
+
+/* доступность: курсор на кликабельном, видимый фокус, reduced-motion */
+.nav-i,.tbl tbody tr{cursor:pointer}
+:where(.nav-i,.seg button,.sel,.back):focus-visible{outline:2px solid #2563eb;outline-offset:2px;border-radius:8px}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}}
+@media(max-width:980px){.app{grid-template-columns:1fr}.side{display:none}.g-2,.g-2e,.loc-grid,.ue-cards{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><div class="ava">Т</div><div><div class="bn">Тепло</div><div class="bt">сеть кофеен · 4 точки</div></div></div>
+    <div class="nav-grp">Финансы</div>
+    <div class="nav-i on" data-sec="pnl"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M8 16v-5M12 16V8M16 16v-7"/></svg> Отчёт P&amp;L</div>
+    <div class="nav-i" data-sec="bud"><svg viewBox="0 0 24 24"><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></svg> Бюджет (план/факт)</div>
+    <div class="nav-i" data-sec="cf"><svg viewBox="0 0 24 24"><path d="M3 12h4l3 7 4-14 3 7h4"/></svg> Денежный поток</div>
+    <div class="nav-i" data-sec="loc"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> По точкам</div>
+    <div class="nav-i" data-sec="ue"><svg viewBox="0 0 24 24"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg> Юнит-экономика</div>
+    <div class="side-foot"><a class="back" href="../index.html">← Вернуться на сайт</a></div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <div><div class="crumb">Тепло / Финансы / <span id="crumb">Отчёт P&amp;L</span></div><h1 id="title">Отчёт о прибылях и убытках</h1></div>
+      <div class="right">
+        <select class="sel" id="period"><option>Июнь 2026</option><option>Май 2026</option><option>2 кв 2026</option></select>
+        <span class="demo-tag">демо · обезличено</span>
+        <span class="live"><span class="dot"></span>обновлено</span>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- P&L -->
+      <div class="section on" data-sec="pnl">
+        <div class="kpi-row" style="grid-template-columns:repeat(5,1fr)">
+          <div class="kpi"><div class="k">Выручка</div><div class="v">9,40<small> млн ₸</small></div><div class="foot up">▲ 12% м/м</div></div>
+          <div class="kpi"><div class="k">Валовая маржа</div><div class="v">68<small>%</small></div><div class="foot flat">6,40 млн ₸</div></div>
+          <div class="kpi"><div class="k">EBITDA</div><div class="v">2,60<small> млн ₸</small></div><div class="foot flat">маржа 28%</div></div>
+          <div class="kpi"><div class="k">EBIT</div><div class="v">2,32<small> млн ₸</small></div><div class="foot flat">маржа 25%</div></div>
+          <div class="kpi"><div class="k">Чистая прибыль</div><div class="v">1,93<small> млн ₸</small></div><div class="foot up">маржа 20%</div></div>
+        </div>
+        <div class="grid g-2">
+          <div style="display:flex;flex-direction:column;gap:18px">
+            <div class="panel">
+              <div class="ph"><h3>Мостик: от выручки к чистой прибыли</h3><span class="sub">waterfall · июнь 2026</span></div>
+              <div id="chart-wf"></div>
+            </div>
+            <div class="panel">
+              <div class="ph"><h3>Маржинальность по месяцам</h3><span class="sub">валовая · EBITDA · чистая</span></div>
+              <div id="chart-marg"></div>
+              <div class="legend"><span><i style="background:var(--slate)"></i>валовая</span><span><i style="background:var(--amb)"></i>EBITDA</span><span><i style="background:var(--grn)"></i>чистая</span></div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="ph"><h3>Отчёт P&amp;L</h3><span class="sub">% — доля от выручки</span></div>
+            <table class="pnl" id="pnl-table"></table>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="ph"><h3>Выручка по направлениям</h3><span class="sub">структура и динамика по месяцам</span></div>
+          <div id="chart-rev"></div>
+          <div class="legend"><span><i class="sq" style="background:var(--grn)"></i>кофе и напитки</span><span><i class="sq" style="background:var(--slate)"></i>еда и десерты</span><span><i class="sq" style="background:var(--amb)"></i>прочее</span></div>
+        </div>
+      </div>
+
+      <!-- БЮДЖЕТ -->
+      <div class="section" data-sec="bud">
+        <div class="kpi-row" style="grid-template-columns:repeat(4,1fr)">
+          <div class="kpi"><div class="k">Выручка: факт vs план</div><div class="v">94<small>%</small></div><div class="foot down">−0,60 млн к плану</div></div>
+          <div class="kpi"><div class="k">EBITDA: факт vs план</div><div class="v">93<small>%</small></div><div class="foot down">−0,20 млн к плану</div></div>
+          <div class="kpi"><div class="k">Отклонение объёма</div><div class="v down">−0,50<small> млн</small></div><div class="foot flat">гостей меньше плана</div></div>
+          <div class="kpi"><div class="k">Отклонение эффект.</div><div class="v up">+0,10<small> млн</small></div><div class="foot flat">экономия на статьях</div></div>
+        </div>
+        <div class="panel">
+          <div class="ph"><h3>Бюджет: статичный план · гибкий бюджет · факт</h3>
+            <span class="sub">гибкий бюджет = план, пересчитанный под фактический объём</span></div>
+          <table class="tbl" id="bud-table">
+            <thead><tr><th>Статья</th><th>Статичный план</th><th>Гибкий бюджет</th><th>Факт</th><th>Откл. объёма</th><th>Откл. эффект.</th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <div class="legend"><span><span class="tag f">F</span> благоприятное отклонение</span><span><span class="tag u">U</span> неблагоприятное</span></div>
+        </div>
+        <div class="panel">
+          <div class="ph"><h3>Факт против плана</h3><span class="sub">зелёное — факт, метка — план</span></div>
+          <div class="bullets" id="bud-bullets"></div>
+        </div>
+      </div>
+
+      <!-- ДЕНЕЖНЫЙ ПОТОК -->
+      <div class="section" data-sec="cf">
+        <div class="kpi-row" style="grid-template-columns:repeat(4,1fr)">
+          <div class="kpi"><div class="k">Остаток на счету</div><div class="v">5,8<small> млн ₸</small></div><div class="foot up">▲ +2,1 млн</div></div>
+          <div class="kpi"><div class="k">Операц. поток (CFO)</div><div class="v">+2,5<small> млн ₸</small></div><div class="foot flat">от основной деятельности</div></div>
+          <div class="kpi"><div class="k">Чистый денежный поток</div><div class="v">+2,1<small> млн ₸</small></div><div class="foot flat">CFO + CFI + CFF</div></div>
+          <div class="kpi"><div class="k">Запас прочности</div><div class="v">4,2<small> мес</small></div><div class="foot flat">остаток / отток</div></div>
+        </div>
+        <div class="panel">
+          <div class="ph"><h3>Остаток денег: факт и прогноз</h3><span class="sub">пунктир — прогноз · штрих — минимальный буфер 2,5 млн</span></div>
+          <div id="chart-cash"></div>
+          <div class="legend"><span><i style="background:var(--grn)"></i>факт</span><span><i style="background:var(--slate)"></i>прогноз</span><span><i class="dash"></i>мин. буфер</span></div>
+        </div>
+        <div class="panel">
+          <div class="ph"><h3>Притоки и оттоки по месяцам</h3></div>
+          <div id="chart-flow"></div>
+          <div class="legend"><span><i class="sq" style="background:var(--grn)"></i>приток</span><span><i class="sq" style="background:var(--red)"></i>отток</span></div>
+        </div>
+      </div>
+
+      <!-- ПО ТОЧКАМ -->
+      <div class="section" data-sec="loc">
+        <div class="panel">
+          <div class="ph"><h3>Чистая прибыль по точкам</h3><span class="sub">вклад каждой точки</span></div>
+          <div id="chart-loc"></div>
+          <div class="legend"><span><i class="sq" style="background:var(--grn)"></i>прибыль</span><span><i class="sq" style="background:var(--red)"></i>зона риска</span></div>
+        </div>
+        <div class="loc-grid" id="loc-cards"></div>
+      </div>
+
+      <!-- ЮНИТ-ЭКОНОМИКА -->
+      <div class="section" data-sec="ue">
+        <div class="kpi-row" style="grid-template-columns:repeat(5,1fr)">
+          <div class="kpi"><div class="k">Средний чек</div><div class="v">1 850<small> ₸</small></div></div>
+          <div class="kpi"><div class="k">Маржа вклада / чек</div><div class="v">1 260<small> ₸</small></div><div class="foot flat">68% чека</div></div>
+          <div class="kpi"><div class="k">Точка безубыт.</div><div class="v">3 020<small> гостей</small></div><div class="foot flat">≈ 5,6 млн ₸/мес</div></div>
+          <div class="kpi"><div class="k">LTV гостя</div><div class="v">16 200<small> ₸</small></div></div>
+          <div class="kpi"><div class="k">LTV : CAC</div><div class="v">12,0×</div><div class="foot up">окупаемость ~3 нед</div></div>
+        </div>
+        <div class="grid g-2">
+          <div class="panel">
+            <div class="ph"><h3>Точка безубыточности</h3><span class="sub">выручка против затрат по объёму гостей</span></div>
+            <div id="chart-be"></div>
+            <div class="legend"><span><i style="background:var(--grn)"></i>выручка</span><span><i style="background:var(--red)"></i>полные затраты</span><span><i class="dash"></i>постоянные затраты</span></div>
+          </div>
+          <div class="panel">
+            <div class="ph"><h3>Окупаемость клиента</h3><span class="sub">LTV против стоимости привлечения</span></div>
+            <div class="lc"><div class="nm">LTV гостя</div><div class="track"><div class="fill" style="width:100%;background:var(--grn)">16 200 ₸</div></div></div>
+            <div class="lc"><div class="nm">CAC</div><div class="track"><div class="fill" style="width:8.3%;background:var(--red)">1 350 ₸</div></div></div>
+            <div class="lc"><div class="nm">Маржа вклада</div><div class="track"><div class="fill" style="width:68%;background:var(--slate)">11 000 ₸</div></div></div>
+            <div class="ratio"><b>12,0×</b><span>LTV : CAC — здоровая зона (норма ≥ 3×)</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+function ru(n){return Math.round(n).toLocaleString('ru-RU')}
+function mln(v){return (v/1e6).toFixed(2).replace('.',',')}
+
+/* ----- waterfall (мостик P&L) ----- */
+function waterfall(elId,items){
+  const W=600,H=280,pL=48,pR=12,pT=18,pB=52,pw=W-pL-pR,ph=H-pT-pB;
+  let run=0,maxV=0;const calc=items.map(it=>{
+    let bottom,top;
+    if(it[2]==='minus'){top=run;bottom=run-it[1];run=bottom;}
+    else{bottom=0;top=it[1];run=it[1];}
+    maxV=Math.max(maxV,top);return{l:it[0],t:it[2],bottom,top};
+  });
+  const yMax=Math.ceil(maxV/1e6)*1e6,slot=pw/items.length,bw=Math.min(slot*0.62,46);
+  const y=v=>pT+ph*(1-v/yMax);
+  let s=`<svg class="chart" viewBox="0 0 ${W} ${H}">`;
+  for(let t=0;t<=4;t++){const yy=pT+ph*t/4,val=yMax*(1-t/4);
+    s+=`<line class="grid-l" x1="${pL}" y1="${yy}" x2="${pL+pw}" y2="${yy}"/><text class="axis-t" x="${pL-8}" y="${yy+3}" text-anchor="end">${(val/1e6).toFixed(0)}М</text>`;}
+  calc.forEach((c,i)=>{
+    const cx=pL+slot*i+slot/2,bx=cx-bw/2,yt=y(c.top),yb=y(c.bottom);
+    const col=c.t==='minus'?'var(--red)':c.t==='total'?'var(--grn)':c.t==='key'?'var(--slate)':'var(--slate2)';
+    s+=`<rect x="${bx}" y="${yt}" width="${bw}" height="${Math.max(yb-yt,2)}" rx="2.5" fill="${col}"/>`;
+    s+=`<text class="vlab" x="${cx}" y="${yt-5}" text-anchor="middle">${(((c.top-c.bottom))/1e6).toFixed(2).replace('.',',')}</text>`;
+    if(i<calc.length-1){const ny=y(calc[i+1].t==='minus'?calc[i+1].top:calc[i+1].top);
+      const connY=c.t==='minus'?y(c.bottom):y(c.top);
+      s+=`<line class="conn" x1="${cx+bw/2}" y1="${connY}" x2="${pL+slot*(i+1)+slot/2-bw/2}" y2="${connY}"/>`;}
+    const lines=c.l.split('|');
+    lines.forEach((ln,li)=>s+=`<text class="axis-x" x="${cx}" y="${H-38+li*12}" text-anchor="middle">${ln}</text>`);
+  });
+  s+=`</svg>`;document.getElementById(elId).innerHTML=s;
+}
+/* ----- stacked bars ----- */
+function stackedBar(elId,o){
+  const n=o.labels.length,W=600,H=250,pL=48,pR=12,pT=16,pB=32,pw=W-pL-pR,ph=H-pT-pB;
+  const slot=pw/n,bw=Math.min(slot*0.55,40),y=v=>pT+ph*(1-v/o.yMax);
+  let s=`<svg class="chart" viewBox="0 0 ${W} ${H}">`;
+  for(let t=0;t<=4;t++){const yy=pT+ph*t/4,val=o.yMax*(1-t/4);
+    s+=`<line class="grid-l" x1="${pL}" y1="${yy}" x2="${pL+pw}" y2="${yy}"/><text class="axis-t" x="${pL-8}" y="${yy+3}" text-anchor="end">${(val/1e6).toFixed(0)}М</text>`;}
+  o.labels.forEach((l,i)=>{let acc=0;const cx=pL+slot*i+slot/2,bx=cx-bw/2;
+    o.series.forEach(se=>{const v=se.data[i],yb=y(acc),yt=y(acc+v);acc+=v;
+      s+=`<rect x="${bx}" y="${yt}" width="${bw}" height="${Math.max(yb-yt,0.5)}" fill="${se.color}"/>`;});
+    s+=`<text class="axis-x" x="${cx}" y="${H-10}" text-anchor="middle">${l}</text>`;});
+  s+=`</svg>`;document.getElementById(elId).innerHTML=s;
+}
+/* ----- grouped bars ----- */
+function barChart(elId,o){
+  const n=o.labels.length,W=600,H=250,pL=48,pR=12,pT=16,pB=34,pw=W-pL-pR,ph=H-pT-pB,g=o.series.length;
+  const slot=pw/n,bw=Math.min(slot*0.66/g,24),gap=(slot-bw*g)/2,y=v=>pT+ph*(1-v/o.yMax);
+  let s=`<svg class="chart" viewBox="0 0 ${W} ${H}">`;
+  for(let t=0;t<=4;t++){const yy=pT+ph*t/4,val=o.yMax*(1-t/4);
+    s+=`<line class="grid-l" x1="${pL}" y1="${yy}" x2="${pL+pw}" y2="${yy}"/><text class="axis-t" x="${pL-8}" y="${yy+3}" text-anchor="end">${o.yFmt?o.yFmt(val):Math.round(val)}</text>`;}
+  o.labels.forEach((l,i)=>{const x0=pL+slot*i+gap;
+    o.series.forEach((se,gi)=>{const v=se.data[i],bx=x0+gi*bw,by=y(v);s+=`<rect x="${bx}" y="${by}" width="${bw-3}" height="${Math.max(pT+ph-by,1)}" rx="2.5" fill="${se.color}"/>`;});
+    s+=`<text class="axis-x" x="${pL+slot*i+slot/2}" y="${H-12}" text-anchor="middle">${l}</text>`;});
+  s+=`</svg>`;document.getElementById(elId).innerHTML=s;
+}
+/* ----- line chart (cash) ----- */
+function lineChart(elId,o){
+  const W=600,H=250,pL=50,pR=14,pT=14,pB=32,pw=W-pL-pR,ph=H-pT-pB,ticks=o.yTicks||4,ymax=o.yMax,ymin=o.yMin||0;
+  const x=i=>pL+pw*i/(o.labels.length-1),y=v=>pT+ph*(1-(v-ymin)/(ymax-ymin));
+  let s=`<svg class="chart" viewBox="0 0 ${W} ${H}">`;
+  for(let t=0;t<=ticks;t++){const yy=pT+ph*t/ticks,val=ymin+(ymax-ymin)*(1-t/ticks);
+    s+=`<line class="grid-l" x1="${pL}" y1="${yy}" x2="${pL+pw}" y2="${yy}"/><text class="axis-t" x="${pL-8}" y="${yy+3}" text-anchor="end">${o.yFmt?o.yFmt(val):Math.round(val)}</text>`;}
+  o.labels.forEach((l,i)=>s+=`<text class="axis-x" x="${x(i)}" y="${H-10}" text-anchor="middle">${l}</text>`);
+  if(o.target!=null){const ty=y(o.target);s+=`<line class="tgt-l" x1="${pL}" y1="${ty}" x2="${pL+pw}" y2="${ty}"/>`;}
+  (o.series||[]).forEach(se=>{
+    const dd=se.data.map((v,i)=>v==null?null:`${x(i)},${y(v)}`).filter(Boolean).join(' ');
+    s+=`<polyline points="${dd}" fill="none" stroke="${se.color}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"${se.dash?' stroke-dasharray="6 5"':''}/>`;
+    se.data.forEach((v,i)=>{if(v!=null)s+=`<circle cx="${x(i)}" cy="${y(v)}" r="3.4" fill="#fff" stroke="${se.color}" stroke-width="2"/>`;});
+  });
+  s+=`</svg>`;document.getElementById(elId).innerHTML=s;
+}
+/* ----- breakeven ----- */
+function breakeven(elId,o){
+  const W=600,H=260,pL=52,pR=14,pT=16,pB=40,pw=W-pL-pR,ph=H-pT-pB;
+  const gmax=o.maxG,ymax=o.pricePerG*gmax,x=g=>pL+pw*g/gmax,y=v=>pT+ph*(1-v/ymax);
+  const beG=o.fixed/(o.pricePerG-o.varPerG),beV=o.pricePerG*beG;
+  let s=`<svg class="chart" viewBox="0 0 ${W} ${H}">`;
+  for(let t=0;t<=4;t++){const yy=pT+ph*t/4,val=ymax*(1-t/4);
+    s+=`<line class="grid-l" x1="${pL}" y1="${yy}" x2="${pL+pw}" y2="${yy}"/><text class="axis-t" x="${pL-8}" y="${yy+3}" text-anchor="end">${(val/1e6).toFixed(0)}М</text>`;}
+  for(let t=0;t<=4;t++){const gx=pL+pw*t/4;s+=`<text class="axis-x" x="${gx}" y="${H-22}" text-anchor="middle">${Math.round(gmax*t/4)}</text>`;}
+  s+=`<text class="axis-x" x="${pL+pw/2}" y="${H-7}" text-anchor="middle" style="fill:var(--mut)">гостей в месяц</text>`;
+  // постоянные затраты
+  s+=`<line class="tgt-l" x1="${pL}" y1="${y(o.fixed)}" x2="${pL+pw}" y2="${y(o.fixed)}"/>`;
+  // полные затраты
+  s+=`<line x1="${x(0)}" y1="${y(o.fixed)}" x2="${x(gmax)}" y2="${y(o.fixed+o.varPerG*gmax)}" stroke="var(--red)" stroke-width="2.5"/>`;
+  // выручка
+  s+=`<line x1="${x(0)}" y1="${y(0)}" x2="${x(gmax)}" y2="${y(ymax)}" stroke="var(--grn)" stroke-width="2.5"/>`;
+  // точка безубытка
+  s+=`<circle cx="${x(beG)}" cy="${y(beV)}" r="5" fill="#fff" stroke="var(--txt)" stroke-width="2"/>`;
+  s+=`<line x1="${x(beG)}" y1="${y(beV)}" x2="${x(beG)}" y2="${pT+ph}" stroke="var(--mut2)" stroke-width="1" stroke-dasharray="3 3"/>`;
+  s+=`<text class="mk" x="${x(beG)}" y="${y(beV)-10}" text-anchor="middle">безубыток · ${ru(beG)} гостей</text>`;
+  // текущая точка
+  s+=`<circle cx="${x(o.current)}" cy="${y(o.pricePerG*o.current)}" r="4" fill="var(--grn)"/>`;
+  s+=`<text class="mk" x="${x(o.current)}" y="${y(o.pricePerG*o.current)-10}" text-anchor="middle" style="fill:var(--grn)">сейчас · ${ru(o.current)}</text>`;
+  s+=`</svg>`;document.getElementById(elId).innerHTML=s;
+}
+
+/* ---------- данные ---------- */
+const MON=["Янв","Фев","Мар","Апр","Май","Июн"];
+const PNL=[
+  ["Выручка","head"],
+  ["Кофе и напитки",6580000,"70%","item"],["Еда и десерты",2350000,"25%","item"],["Прочее (мерч, опт)",470000,"5%","item"],
+  ["Выручка, итого",9400000,"100%","sub"],
+  ["Себестоимость (COGS)",-3000000,"−32%","minus"],
+  ["Валовая прибыль",6400000,"68%","sub"],
+  ["Операционные расходы","head"],
+  ["Аренда",-1840000,"−20%","minus"],["ФОТ (персонал)",-1220000,"−13%","minus"],["Маркетинг",-340000,"−4%","minus"],["Коммунальные",-180000,"−2%","minus"],["Прочее",-220000,"−2%","minus"],
+  ["EBITDA",2600000,"28%","key"],
+  ["Амортизация (D&A)",-280000,"−3%","minus"],
+  ["EBIT (операц. прибыль)",2320000,"25%","key"],
+  ["Проценты по кредиту",-180000,"−2%","minus"],
+  ["Налог (КПН)",-214000,"−2%","minus"],
+  ["Чистая прибыль",1926000,"20%","total"]
+];
+const WF=[["Выручка",9400000,"base"],["−COGS",3000000,"minus"],["Валовая|прибыль",6400000,"key"],["−OpEx",3800000,"minus"],["EBITDA",2600000,"key"],["−D&A",280000,"minus"],["EBIT",2320000,"key"],["−%|и налог",394000,"minus"],["Чистая|прибыль",1926000,"total"]];
+// бюджет: [статья, статичный план, гибкий, факт, тип]  тип: '' | 'bold'
+const BUD=[
+  ["Выручка",10000000,9500000,9400000,"bold"],
+  ["Себестоимость",-3200000,-3040000,-3000000,""],
+  ["Валовая прибыль",6800000,6460000,6400000,"bold"],
+  ["Аренда",-1840000,-1840000,-1840000,""],
+  ["ФОТ",-1200000,-1180000,-1220000,""],
+  ["Маркетинг",-300000,-300000,-340000,""],
+  ["Прочее OpEx",-660000,-650000,-680000,""],
+  ["EBITDA",2800000,2490000,2320000,"bold"]
+];
+const LOC=[
+  ["ТЦ «Мега»",3100000,1100000,35,92,"g"],
+  ["пр. Достык",2700000,890000,33,84,"g"],
+  ["ул. Абая",2200000,590000,27,62,"g"],
+  ["Аэропорт",1400000,100000,7,12,"r"]
+];
+
+/* ---------- рендер ---------- */
+function set(id,v){const e=document.getElementById(id);if(e)e.innerHTML=v}
+function renderPnl(){
+  document.getElementById("pnl-table").innerHTML=PNL.map(r=>{
+    if(r[1]==="head")return `<tr class="head"><td colspan="3">${r[0]}</td></tr>`;
+    const amt=(r[1]<0?'−':'')+ru(Math.abs(r[1]))+' ₸';
+    return `<tr class="${r[3]}"><td>${r[0]}</td><td>${amt}</td><td>${r[2]}</td></tr>`;
+  }).join("");
+  waterfall("chart-wf",WF);
+  lineChart("chart-marg",{labels:MON,yMax:80,yMin:0,yTicks:4,yFmt:v=>v.toFixed(0)+'%',series:[
+    {color:"var(--slate)",data:[66,67,67,68,68,68]},
+    {color:"var(--amb)",data:[24,26,25,27,27,28]},
+    {color:"var(--grn)",data:[17,18,18,19,19,20]}
+  ]});
+  stackedBar("chart-rev",{labels:MON,yMax:10000000,series:[
+    {color:"var(--grn)",data:[5.0,5.3,5.2,5.8,6.2,6.58].map(v=>v*1e6)},
+    {color:"var(--slate)",data:[1.7,1.8,1.8,2.0,2.2,2.35].map(v=>v*1e6)},
+    {color:"var(--amb)",data:[0.4,0.4,0.4,0.45,0.46,0.47].map(v=>v*1e6)}
+  ]});
+}
+function renderBud(){
+  document.querySelector("#bud-table tbody").innerHTML=BUD.map(b=>{
+    const volVar=b[2]-b[1], effVar=b[3]-b[2];
+    const vf=v=>{const fav=(b[0]==='Выручка'||b[0]==='Валовая прибыль'||b[0]==='EBITDA')?v>=0:v<=0; // для доходов рост=хорошо, для расходов экономия=хорошо
+      const cls=Math.abs(v)<1?'flat':fav?'var-f':'var-u';const tg=Math.abs(v)<1?'':fav?'<span class="tag f">F</span>':'<span class="tag u">U</span>';
+      return `<span class="${cls}">${v>0?'+':'−'}${ru(Math.abs(v))}</span> ${tg}`;};
+    return `<tr class="${b[4]}"><td>${b[0]}</td><td>${b[1]<0?'−':''}${ru(Math.abs(b[1]))}</td><td>${b[2]<0?'−':''}${ru(Math.abs(b[2]))}</td><td>${b[3]<0?'−':''}${ru(Math.abs(b[3]))}</td><td>${vf(volVar)}</td><td>${vf(effVar)}</td></tr>`;
+  }).join("");
+  const bul=[["Выручка",10000000,9400000],["Валовая прибыль",6800000,6400000],["EBITDA",2800000,2320000]];
+  document.getElementById("bud-bullets").innerHTML=bul.map(it=>{
+    const scale=it[1]*1.15,fw=it[2]/scale*100,pw=it[1]/scale*100,d=(it[2]/it[1]*100-100);
+    const cls=d>=0?'var-f':'var-u';
+    return `<div class="bul"><div class="bl">${it[0]}</div>
+      <div class="btrack"><div class="bfact" style="width:${fw}%"></div><div class="bplan" style="left:${pw}%"></div></div>
+      <div class="bval">${mln(it[2])}М / ${mln(it[1])}М <b class="${cls}">${d>=0?'+':''}${d.toFixed(1)}%</b></div></div>`;
+  }).join("");
+}
+function renderCash(){
+  lineChart("chart-cash",{labels:[...MON,"Июл","Авг"],yMax:11000000,yMin:0,yTicks:4,yFmt:v=>(v/1e6).toFixed(0)+'М',target:2500000,
+    series:[{color:"var(--grn)",data:[1.9,2.6,3.0,3.7,4.9,5.8,null,null].map(v=>v==null?null:v*1e6)},
+            {color:"var(--slate)",dash:true,data:[null,null,null,null,null,5.8,7.6,9.4].map(v=>v==null?null:v*1e6)}]});
+  barChart("chart-flow",{labels:MON,yMax:11000000,yFmt:v=>(v/1e6).toFixed(0)+'М',series:[
+    {color:"var(--grn)",data:[7.8,8.2,8.0,8.8,9.4,9.9].map(v=>v*1e6)},
+    {color:"var(--red)",data:[7.0,7.3,7.4,7.6,7.5,7.8].map(v=>v*1e6)}]});
+}
+function renderLoc(){
+  barChart("chart-loc",{labels:LOC.map(l=>l[0]),yMax:1200000,yFmt:v=>(v/1e6).toFixed(1)+'М',series:[
+    {color:"var(--grn)",data:LOC.map(l=>l[5]==='r'?0:l[2])},{color:"var(--red)",data:LOC.map(l=>l[5]==='r'?l[2]:0)}]});
+  document.getElementById("loc-cards").innerHTML=LOC.map((l,i)=>
+    `<div class="loc ${l[5]==='r'?'warn':''}">
+      <div class="lh"><div class="nm">${l[0]}</div><div class="rk">#${i+1} по прибыли</div></div>
+      <div class="lkpi">
+        <div><div class="lk">Выручка</div><div class="lv">${mln(l[1])}М</div></div>
+        <div><div class="lk">Чистая</div><div class="lv">${mln(l[2])}М</div></div>
+        <div><div class="lk">Маржа</div><div class="lv" style="color:${l[5]==='r'?'var(--red)':'var(--grn)'}">${l[3]}%</div></div>
+      </div>
+      <div class="lbar"><i style="width:${l[4]}%;background:${l[5]==='r'?'var(--red)':'var(--grn)'}"></i></div>
+      <div class="lcap"><span>загрузка точки</span><span>${l[4]}%</span></div>
+    </div>`).join("");
+}
+function renderUe(){
+  breakeven("chart-be",{maxG:7000,fixed:3800000,varPerG:590,pricePerG:1850,current:5080});
+}
+const TITLES={pnl:["Отчёт P&L","Отчёт о прибылях и убытках"],bud:["Бюджет (план/факт)","Бюджет: план, гибкий бюджет, факт"],cf:["Денежный поток","Хватит ли денег: остаток и прогноз"],loc:["По точкам","Сравнение точек по прибыли"],ue:["Юнит-экономика","Окупаемость и точка безубыточности"]};
+function showSection(sec){
+  document.querySelectorAll(".nav-i").forEach(n=>n.classList.toggle("on",n.dataset.sec===sec));
+  document.querySelectorAll(".section").forEach(s=>s.classList.toggle("on",s.dataset.sec===sec));
+  set("crumb",TITLES[sec][0]);set("title",TITLES[sec][1]);
+}
+document.querySelectorAll(".nav-i").forEach(n=>n.addEventListener("click",()=>showSection(n.dataset.sec)));
+renderPnl();renderBud();renderCash();renderLoc();renderUe();
+</script>
+</body>
+</html>
