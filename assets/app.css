@@ -245,6 +245,48 @@ h2{font-size:clamp(27px,3.6vw,40px);font-weight:800;letter-spacing:-.5px;line-he
 .mini-row:last-child{border:none}
 .mini-row .ini{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#06231a}
 
+/* ---------- флагманский блок: большой живой дашборд ---------- */
+.flag{margin-top:38px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);
+  padding:24px;box-shadow:var(--shadow-sm)}
+.flag-shot{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:#0a0e16;box-shadow:var(--shadow-sm)}
+.flag-frame{position:relative;height:540px;overflow:hidden;background:#0d1017}
+.flag-frame iframe{position:absolute;top:0;left:0;width:1500px;height:1100px;border:0;
+  transform:scale(.73);transform-origin:top left;pointer-events:none}
+.flag-open{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-top:22px}
+.flag-open .fo-note{font-size:13px;color:var(--mut2);max-width:420px}
+
+.feat-grid{margin-top:30px;display:grid;grid-template-columns:repeat(2,1fr);gap:14px 34px}
+.feat{display:flex;gap:13px;align-items:flex-start}
+.feat .fi{width:26px;height:26px;border-radius:8px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;
+  background:rgba(52,211,153,.12);border:1px solid var(--acc-d);color:var(--acc);font-size:13px;font-weight:800}
+.feat b{display:block;font-size:15px;font-weight:700;margin-bottom:2px}
+.feat span{font-size:13.5px;color:var(--mut)}
+
+/* ---------- блок с ценой ---------- */
+.offer{margin-top:38px;display:grid;grid-template-columns:1.15fr .85fr;gap:26px;align-items:stretch}
+.offer-body{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);padding:28px}
+.offer-body h3{font-size:20px;font-weight:800;margin-bottom:14px;letter-spacing:-.3px}
+.offer-list{list-style:none;display:flex;flex-direction:column;gap:12px;margin-top:6px}
+.offer-list li{position:relative;padding-left:26px;font-size:15px;color:var(--mut);line-height:1.55}
+.offer-list li::before{content:"";position:absolute;left:0;top:8px;width:9px;height:9px;border-radius:3px;background:var(--acc)}
+.offer-list li b{color:var(--txt);font-weight:600}
+.price{background:linear-gradient(135deg,#13233c,#0d1520);border:1px solid var(--line);border-radius:var(--r-lg);
+  padding:28px;display:flex;flex-direction:column;justify-content:center}
+.price .pl{font-size:12px;letter-spacing:1.4px;text-transform:uppercase;color:var(--mut2);margin-bottom:10px}
+.price .pv{font-size:34px;font-weight:800;letter-spacing:-.8px}
+.price .pv small{display:block;font-size:14px;color:var(--mut);font-weight:600;margin-top:5px;letter-spacing:0}
+.price .pdiv{height:1px;background:var(--line);margin:20px 0}
+.price .pfree{font-size:14px;color:var(--txt);line-height:1.6}
+.price .btn{margin-top:20px;width:100%}
+
+@media(max-width:900px){
+  .flag{padding:16px}
+  .flag-frame{height:300px}
+  .flag-frame iframe{transform:scale(.42)}
+  .feat-grid{grid-template-columns:1fr;gap:14px}
+  .offer{grid-template-columns:1fr}
+}
+
 .final{margin-top:24px;text-align:center;background:linear-gradient(135deg,#13233c,#0d1520);border:1px solid var(--line);border-radius:24px;padding:62px 30px}
 .final h2{max-width:640px;margin:0 auto}
 .final .lead{margin:16px auto 0}

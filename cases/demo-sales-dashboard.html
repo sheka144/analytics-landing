@@ -1,0 +1,1722 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Демо · дашборд продаж и рекламы</title>
+<style>
+:root{
+  color-scheme: dark;
+  --bg:#0d1017; --surface:#161a24; --surface2:#1c212d; --surface3:#222839;
+  --line:#262c3a; --line2:#333b4d;
+  --ink:#ffffff; --ink2:#b9bfcd; --muted:#7d8598;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --s6:#9085e9;
+  --good:#0ca30c; --warn:#fab219; --serious:#ec835a; --crit:#d03b3b;
+  --grid:#232838; --axis:#333b4d;
+  --r:12px;
+  font-family: system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.45}
+a{color:var(--s1)}
+.wrap{max-width:1440px;margin:0 auto;padding:0 20px 60px}
+
+/* ---------- шапка ---------- */
+.topbar{display:flex;align-items:center;gap:16px;padding:14px 0 12px;flex-wrap:wrap}
+.brand{font-weight:700;font-size:16px;letter-spacing:-.2px;white-space:nowrap}
+.brand span{color:var(--muted);font-weight:500}
+.search{flex:1;min-width:200px;max-width:420px;background:var(--surface2);border:1px solid var(--line);
+  border-radius:999px;padding:8px 14px;color:var(--ink2);font-size:13px}
+.sync{margin-left:auto;text-align:right;font-size:11.5px;color:var(--muted);line-height:1.6}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--good);margin-right:6px;vertical-align:1px}
+
+.mockbanner{background:rgba(250,178,25,.10);border:1px solid rgba(250,178,25,.35);color:#f0cd7c;
+  border-radius:10px;padding:9px 14px;font-size:12.5px;margin-bottom:14px}
+.mockbanner b{color:var(--warn)}
+
+/* ---------- вкладки ---------- */
+.tabs{display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--line);padding-bottom:0;margin-bottom:14px}
+.tabs button{background:none;border:0;border-bottom:2px solid transparent;color:var(--ink2);
+  padding:10px 14px;font-size:13.5px;font-family:inherit;cursor:pointer;white-space:nowrap;border-radius:8px 8px 0 0}
+.tabs button:hover{background:var(--surface2);color:var(--ink)}
+.tabs button.on{color:var(--ink);border-bottom-color:var(--s1);background:var(--surface2);font-weight:600}
+
+/* ---------- фильтры ---------- */
+.filters{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin-bottom:16px}
+.frow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.frow + .frow{margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.chip{background:var(--surface2);border:1px solid var(--line);color:var(--ink2);border-radius:8px;
+  padding:6px 12px;font-size:12.5px;font-family:inherit;cursor:pointer}
+.chip:hover{border-color:var(--line2);color:var(--ink)}
+.chip.on{background:var(--s1);border-color:var(--s1);color:#fff;font-weight:600}
+.daterange{margin-left:auto;background:var(--surface2);border:1px solid var(--line);border-radius:8px;
+  padding:6px 12px;font-size:12.5px;color:var(--ink2)}
+.fl{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-right:2px}
+select{background:var(--surface2);border:1px solid var(--line);color:var(--ink);border-radius:8px;
+  padding:6px 10px;font-size:12.5px;font-family:inherit}
+.hint{font-size:12px;color:var(--muted);margin-top:8px}
+
+/* ---------- сигналы ---------- */
+.signals{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.sig{border-radius:10px;padding:8px 13px;font-size:12.5px;display:inline-flex;align-items:center;gap:8px;width:fit-content;max-width:100%}
+.sig.rec{background:rgba(57,135,229,.12);border:1px solid rgba(57,135,229,.35);color:#a9cbf5}
+.sig.warn{background:rgba(250,178,25,.10);border:1px solid rgba(250,178,25,.32);color:#ecc57e}
+.sig.bad{background:rgba(208,59,59,.12);border:1px solid rgba(208,59,59,.35);color:#ea9b9b}
+
+/* ---------- карточки ---------- */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;margin-bottom:16px}
+.card h3{margin:0 0 2px;font-size:14.5px;font-weight:650}
+.card .sub{color:var(--muted);font-size:12px;margin-bottom:14px}
+.grid{display:grid;gap:10px;margin-bottom:16px}
+.g5{grid-template-columns:repeat(auto-fit,minmax(178px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(215px,1fr))}
+.g2{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:13px 15px 12px;position:relative}
+.tile .k{font-size:10.5px;letter-spacing:.7px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;display:flex;gap:6px;align-items:center}
+.tile .v{font-size:26px;font-weight:680;letter-spacing:-.6px;line-height:1.1}
+.tile .v small{font-size:14px;font-weight:500;color:var(--ink2);margin-left:4px}
+.tile .d{font-size:11.5px;margin-top:7px;color:var(--muted);display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.badge{border-radius:6px;padding:1px 6px;font-weight:640;font-size:11px}
+.up{background:rgba(12,163,12,.14);color:#4ec24e}
+.down{background:rgba(208,59,59,.14);color:#e58585}
+.flat{background:var(--surface3);color:var(--ink2)}
+.bar{height:3px;border-radius:2px;background:var(--surface3);margin-top:10px;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:2px;background:var(--s1)}
+.note{font-size:11.5px;color:var(--muted);margin-top:6px}
+
+/* ---------- таблицы ---------- */
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+th{text-align:right;font-weight:600;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.5px;
+  padding:8px 10px;border-bottom:1px solid var(--line2);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap;color:var(--ink2)}
+td:first-child{color:var(--ink)}
+tr.tot td{border-top:1px solid var(--line2);border-bottom:0;font-weight:650;color:var(--ink)}
+tr.drill{cursor:pointer}
+tr.drill:hover td{background:var(--surface2)}
+tr.lvl2 td:first-child{padding-left:30px;color:var(--ink2)}
+tr.lvl3 td:first-child{padding-left:52px;color:var(--muted)}
+tr.lvl2,tr.lvl3{background:rgba(255,255,255,.012)}
+.tri{display:inline-block;width:11px;color:var(--muted);font-size:10px}
+.pill{border-radius:6px;padding:1px 7px;font-size:11.5px;font-weight:600}
+
+details{margin-top:12px}
+summary{cursor:pointer;color:var(--muted);font-size:12px;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"▸ ";}
+details[open] summary::before{content:"▾ ";}
+summary:hover{color:var(--ink2)}
+
+/* ---------- легенда ---------- */
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink2);margin:2px 0 12px}
+.legend i{width:9px;height:9px;border-radius:2px;display:inline-block;margin-right:6px;vertical-align:0}
+
+/* ---------- воронка-полоска ---------- */
+.fbars{display:flex;flex-direction:column;gap:7px}
+.fb{display:grid;grid-template-columns:150px 1fr 130px;gap:12px;align-items:center;font-size:12.5px}
+.fb .lb{color:var(--ink2)}
+.fb .tr{background:var(--surface2);border-radius:3px;height:16px;overflow:hidden}
+.fb .tr i{display:block;height:100%;border-radius:3px}
+.fb .vv{text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+.fb .vv b{color:var(--ink);font-weight:640}
+
+/* ---------- проверки ---------- */
+.chk{border:1px dashed var(--line2);border-radius:10px;padding:11px 14px;margin-bottom:9px}
+.chk h4{margin:0 0 5px;font-size:13.5px;font-weight:640;display:flex;align-items:center;gap:8px}
+.chk .facts{font-size:12px;color:var(--ink2);margin-bottom:4px}
+.chk .facts b{color:var(--ink)}
+.chk p{margin:0 0 4px;font-size:12px;color:var(--muted)}
+.chk .todo{font-size:12px;color:var(--ink2)}
+.chk .todo b{color:var(--warn)}
+.led{width:9px;height:9px;border-radius:50%;flex:none}
+.led.r{background:var(--crit)} .led.y{background:var(--warn)} .led.g{background:var(--good)}
+
+/* ---------- план ---------- */
+.plan{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.pi label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:5px}
+.pi input{width:100%;background:var(--surface2);border:1px solid var(--line);color:var(--ink);
+  border-radius:8px;padding:8px 10px;font-size:14px;font-family:inherit;font-variant-numeric:tabular-nums}
+.pi input:focus{outline:none;border-color:var(--s1)}
+
+/* ---------- прочее ---------- */
+.tip{position:fixed;pointer-events:none;background:#0a0d13;border:1px solid var(--line2);border-radius:8px;
+  padding:7px 10px;font-size:12px;color:var(--ink);z-index:99;opacity:0;transition:opacity .1s;box-shadow:0 6px 24px rgba(0,0,0,.5);max-width:260px}
+.tip b{font-weight:640}
+.tip .m{color:var(--muted)}
+.foot{border-top:1px solid var(--line);margin-top:26px;padding-top:14px;font-size:11.5px;color:var(--muted);text-align:center;line-height:1.9}
+.panel{display:none}
+.panel.on{display:block}
+
+/* ---------- тепловая карта ---------- */
+.hm td{font-variant-numeric:tabular-nums;border-bottom:2px solid var(--surface)}
+.hm td.c{border-radius:4px;color:var(--ink);font-weight:560}
+.hm th{position:sticky;top:0;background:var(--surface);z-index:2}
+.hm td:first-child,.hm th:first-child{position:sticky;left:0;background:var(--surface);z-index:1}
+.hmleg{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--muted);margin:2px 0 12px}
+.hmleg .ramp{display:flex;border-radius:3px;overflow:hidden}
+.hmleg .ramp i{width:20px;height:11px;display:block}
+
+/* ---------- баш на баш ---------- */
+.bb td:first-child{width:44%}
+.bb tr.sec td{background:var(--surface2);color:var(--ink);font-weight:650;font-size:11px;
+  text-transform:uppercase;letter-spacing:.7px;padding:7px 10px;border-bottom:1px solid var(--line2)}
+
+/* ---------- расписание встреч ---------- */
+.slot{display:grid;grid-template-columns:66px 250px 165px 165px 120px;gap:10px;align-items:center;
+  padding:9px 12px;border:1px solid var(--line);border-radius:9px;margin-bottom:6px;font-size:13px;background:var(--surface2)}
+.slot .t{font-weight:650;font-variant-numeric:tabular-nums}
+.slot .who{color:var(--ink)}
+.slot .m{color:var(--muted);font-size:12px}
+.slot.past{opacity:.62}
+.dayhdr{display:flex;align-items:baseline;gap:10px;margin:16px 0 8px}
+.dayhdr b{font-size:14px}
+.dayhdr span{color:var(--muted);font-size:12px}
+
+/* ---------- мини-бар в ячейке ---------- */
+.mb{display:inline-block;height:5px;border-radius:2px;background:var(--s1);vertical-align:middle;margin-left:8px;min-width:2px}
+.adname{color:var(--s1)}
+.lk{color:var(--s1);border-bottom:1px dotted rgba(57,135,229,.5);cursor:pointer}
+.callout{border:1px dashed var(--line2);border-radius:10px;padding:11px 14px;margin-bottom:14px;font-size:12.5px;color:var(--ink2);line-height:1.6}
+.callout b{color:var(--ink)}
+.callout .hd{color:var(--s6);font-weight:650;font-size:13px;margin-bottom:5px}
+.subtabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+svg{display:block;max-width:100%}
+.q{color:var(--muted);font-weight:400;font-size:11.5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topbar">
+  <div class="brand">Демо<span> · дашборд</span></div>
+  <input class="search" placeholder="🔍  Найти лид, клиента, сделку…">
+  <div class="sync"><span class="dot"></span>обновлено 19:42:10<br>синк CRM: 07.08 19:41 · Meta: 07.08 19:30</div>
+</div>
+
+<div class="mockbanner">
+  <b>Демо-версия.</b> Цифры условные — это пример того, как выглядит дашборд, собранный по мотивам реального проекта (отдел продаж + реклама).
+  С вашими данными вид тот же, цифры и разрезы — под ваш бизнес.
+</div>
+
+<div class="tabs" id="tabs"></div>
+
+<!-- ================= ФИЛЬТРЫ ================= -->
+<div class="filters">
+  <div class="frow">
+    <button class="chip">Сегодня</button>
+    <button class="chip">Вчера</button>
+    <button class="chip">7 дней</button>
+    <button class="chip">30 дней</button>
+    <button class="chip on">Месяц · на сегодня</button>
+    <button class="chip">Месяц целиком</button>
+    <button class="chip">Пред. месяц</button>
+    <div class="daterange">📅 01.08 – 07.08.2026</div>
+  </div>
+  <div class="frow">
+    <span class="fl">Первая линия</span>
+    <select><option>Все менеджеры</option><option>Айгерим</option><option>Данияр</option><option>Мадина</option><option>Ержан</option></select>
+    <span class="fl">Кто проводит встречу</span>
+    <select><option>Все специалисты</option><option>Асель</option><option>Тимур</option><option>Камила</option></select>
+    <span class="fl">Менеджер сделки</span>
+    <select><option>Все менеджеры сделки</option><option>Нурлан</option><option>Алия</option><option>Азамат</option></select>
+    <span class="fl">Канал</span>
+    <select><option>Все каналы</option><option>Instagram (Meta)</option><option>TikTok</option><option>Органика</option><option>Квиз / сайт</option></select>
+  </div>
+  <div class="hint">Один ряд фильтров на всю страницу — период и люди применяются сразу ко всем вкладкам. «Месяц · на сегодня» сравнивается с тем же куском прошлого месяца день-в-день.</div>
+</div>
+
+<!-- ============================================================= -->
+<!-- 1. РНП                                                        -->
+<!-- ============================================================= -->
+<section class="panel on" id="p-rnp">
+  <div class="signals">
+    <div class="sig rec">⚡ рекорд дня: 1,14 млн ₸ · 04.08.2026</div>
+    <div class="sig warn">🌙 06.08 не было ни одной оплаты</div>
+    <div class="sig bad">🔻 конверсия целевой→запись 42% — ниже плана 60% третий день подряд</div>
+  </div>
+
+  <div class="card">
+    <h3>Касса по дням</h3>
+    <div class="sub">столбцы — оплаты дня · линия — среднее за 7 дней</div>
+    <div id="ch-cash"></div>
+    <details><summary>показать таблицей</summary><div class="tw" id="tb-cash"></div></details>
+  </div>
+
+  <div class="grid g5">
+    <div class="tile"><div class="k">Новые заявки</div><div class="v">128</div>
+      <div class="d"><span class="badge down">▼18%</span> было 157</div><div class="bar"><i style="width:57%"></i></div></div>
+    <div class="tile"><div class="k">Целевые</div><div class="v">52 <small>40,6%</small></div>
+      <div class="d"><span class="badge down">▼12%</span> было 59</div><div class="bar"><i style="width:41%"></i></div></div>
+    <div class="tile"><div class="k">Записи на встречу</div><div class="v">22</div>
+      <div class="d"><span class="badge up">▲5%</span> было 21</div><div class="bar"><i style="width:54%"></i></div></div>
+    <div class="tile"><div class="k">Проведено встреч</div><div class="v">14</div>
+      <div class="d"><span class="badge down">▼22%</span> было 18</div><div class="bar"><i style="width:54%"></i></div></div>
+    <div class="tile"><div class="k">Продажи</div><div class="v">6</div>
+      <div class="d"><span class="badge down">▼25%</span> было 8</div><div class="bar"><i style="width:50%"></i></div></div>
+  </div>
+
+  <div class="grid g5">
+    <div class="tile"><div class="k">Касса</div><div class="v">3,42 <small>млн ₸</small></div>
+      <div class="d"><span class="badge down">▼23%</span> было 4,46 млн ₸</div></div>
+    <div class="tile"><div class="k">Средний чек</div><div class="v">570 <small>тыс ₸</small></div>
+      <div class="d"><span class="badge up">▲2%</span> было 558 тыс ₸</div></div>
+    <div class="tile"><div class="k">Расход на рекламу</div><div class="v">$1 214</div>
+      <div class="d"><span class="badge flat">▲9%</span> было $1 114</div></div>
+    <div class="tile"><div class="k">CPL</div><div class="v">$9,48</div>
+      <div class="d"><span class="badge down">▲34%</span> было $7,09 <span class="q">дороже — хуже</span></div></div>
+    <div class="tile"><div class="k">CPQL <span class="q">цена целевого лида</span></div><div class="v">$23,3</div>
+      <div class="d"><span class="badge down">▲23%</span> было $18,9</div></div>
+  </div>
+
+  <div class="grid g5">
+    <div class="tile"><div class="k">CAC</div><div class="v">$202</div>
+      <div class="d"><span class="badge down">▲45%</span> было $139</div></div>
+    <div class="tile"><div class="k">ДРР</div><div class="v">17,3%</div>
+      <div class="d"><span class="badge down">▲5,1 п.п.</span> было 12,2%</div></div>
+    <div class="tile"><div class="k">ROAS</div><div class="v">5,8</div>
+      <div class="d"><span class="badge down">▼29%</span> было 8,2</div></div>
+    <div class="tile"><div class="k">Дозвон <span class="q">телефония</span></div><div class="v">71,1%</div>
+      <div class="d"><span class="badge up">▲3,4 п.п.</span> было 67,7%</div></div>
+    <div class="tile"><div class="k">Цикл сделки · медиана</div><div class="v">9 <small>дн</small></div>
+      <div class="d">заявка → оплата · 6 сделок за период</div></div>
+  </div>
+
+  <div class="grid g5">
+    <div class="tile"><div class="k">Встречи · ожидание / факт</div><div class="v">22 / 14</div>
+      <div class="d">назначено / пришло · доходимость 64%</div><div class="bar"><i style="width:64%;background:var(--s3)"></i></div></div>
+    <div class="tile"><div class="k">Звонков <span class="q">попыток</span></div><div class="v">342</div>
+      <div class="d"><span class="badge flat">▼12%</span> было 388 · 2,7 на заявку</div></div>
+    <div class="tile"><div class="k">Дозвонов</div><div class="v">243</div>
+      <div class="d"><span class="badge down">▼8%</span> было 263</div></div>
+    <div class="tile"><div class="k">Минуты разговоров</div><div class="v">9ч 02м</div>
+      <div class="d">средний разговор 2:14</div></div>
+    <div class="tile"><div class="k">Заявок без звонка</div><div class="v" style="color:#e58585">11</div>
+      <div class="d">8,6% от всех · было 6</div></div>
+  </div>
+
+  <div class="card">
+    <h3>Заявки и целевые по дням</h3>
+    <div class="sub">видно, где падает не количество, а качество трафика</div>
+    <div class="legend"><span><i style="background:var(--s1)"></i>Заявки</span><span><i style="background:var(--s3)"></i>Целевые</span></div>
+    <div id="ch-leads"></div>
+    <details><summary>показать таблицей</summary><div class="tw" id="tb-leads"></div></details>
+  </div>
+
+  <div class="card">
+    <h3>Встречи по дням: назначено и сколько реально прошло</h3>
+    <div class="sub">по дате самой встречи, а не по дате записи · серое сверху — не пришли</div>
+    <div class="legend"><span><i style="background:var(--s3)"></i>прошли</span><span><i style="background:var(--line2)"></i>не пришли</span><span><i style="background:var(--s4)"></i>ещё впереди</span></div>
+    <div id="ch-pu-fact"></div>
+    <details><summary>показать таблицей</summary><div class="tw" id="tb-pu-fact"></div></details>
+  </div>
+
+  <div class="card">
+    <h3>Воронка за период</h3>
+    <div class="sub">в скобках — конверсия из предыдущего шага</div>
+    <div class="fbars" id="funnel"></div>
+  </div>
+
+  <details class="card" style="padding:14px 18px"><summary style="font-size:13.5px;color:var(--s1);font-weight:600">Показать все цифры (трафик, обзвон, конверсии, ROMI)</summary>
+    <div class="tw" style="margin-top:14px" id="tb-allnums"></div>
+  </details>
+
+  <details class="card" style="padding:14px 18px"><summary style="font-size:13.5px;color:var(--s1);font-weight:600">По дням</summary>
+    <div class="sub" style="margin:10px 0 12px">каждая метрика по дням периода · цвет — тепловая карта внутри строки</div>
+    <div class="tw"><table class="hm" id="tb-byday"></table></div>
+  </details>
+
+  <details class="card" style="padding:14px 18px"><summary style="font-size:13.5px;color:var(--s1);font-weight:600">💔 Причины отказов за период</summary>
+    <div class="grid g2" style="margin:14px 0 0">
+      <div><div class="note" style="margin:0 0 10px;color:var(--ink2)"><span style="color:#4ec24e">●</span> ЦЕЛЕВЫЕ — закрыты, 39</div><div class="fbars" id="rk-kval2"></div></div>
+      <div><div class="note" style="margin:0 0 10px;color:var(--ink2)"><span style="color:#e58585">●</span> НЕЦЕЛЕВЫЕ — 46</div><div class="fbars" id="rk-nekval2"></div></div>
+    </div>
+  </details>
+
+  <details class="card" style="padding:14px 18px"><summary style="font-size:13.5px;color:var(--s1);font-weight:600">⚖️ Сверка источников: где цифры расходятся</summary>
+    <div class="sub" style="margin:10px 0 12px">проверено 9 мест · требуют внимания: <b style="color:var(--crit)">3</b></div>
+    <div id="qa-list2"></div>
+  </details>
+
+  <details class="card" style="padding:14px 18px"><summary style="font-size:13.5px;color:var(--s1);font-weight:600">🎯 План месяца и декомпозиция</summary>
+    <div class="sub" style="margin:10px 0 12px">короткая версия · полная — на вкладке «План»</div>
+    <div class="tw" id="tb-plan-mini"></div>
+  </details>
+</section>
+
+<!-- ============================================================= -->
+<!-- 2. ЗАЯВКИ · КАЧЕСТВО                                              -->
+<!-- ============================================================= -->
+<section class="panel" id="p-kval">
+  <div class="subtabs">
+    <button class="chip on">Причина от первой линии</button>
+    <button class="chip">Причина от менеджера сделки</button>
+    <button class="chip">Обе вместе</button>
+  </div>
+
+  <div class="grid g4">
+    <div class="tile"><div class="k">Всего заявок</div><div class="v">128</div><div class="d">за 01.08 – 07.08</div></div>
+    <div class="tile"><div class="k">Целевые <span class="q">когда-либо дошли до этапа</span></div><div class="v" style="color:#4ec24e">52</div>
+      <div class="d">40,6% от всех заявок</div></div>
+    <div class="tile"><div class="k">Нецелевые</div><div class="v" style="color:#e58585">46</div><div class="d">35,9% от всех заявок</div></div>
+    <div class="tile"><div class="k">Ещё в работе</div><div class="v">30</div><div class="d">решение не принято</div></div>
+  </div>
+
+  <div class="card">
+    <h3>Доля целевых среди закрытых</h3>
+    <div class="sub">берём только тех, по кому решение уже принято: 39 целевых + 46 нецелевых = 85 закрытых</div>
+    <div style="display:flex;align-items:baseline;gap:14px;margin-bottom:14px">
+      <div style="font-size:40px;font-weight:700;letter-spacing:-1px">45,9%</div>
+      <div style="color:var(--muted);font-size:12.5px">39 из 85 закрытых были целевыми<br>план 60% · <span style="color:#e58585">не выполняется</span></div>
+    </div>
+    <div class="bar" style="height:8px"><i style="width:45.9%;background:var(--s3)"></i></div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card" style="margin:0">
+      <h3><span style="color:#4ec24e">●</span> ЦЕЛЕВЫЕ — закрыты, 39</h3>
+      <div class="sub">лид был нормальный, но сделка не сложилась. Это зона отдела продаж.</div>
+      <div class="fbars" id="rk-kval"></div>
+    </div>
+    <div class="card" style="margin:0">
+      <h3><span style="color:#e58585">●</span> НЕЦЕЛЕВЫЕ — 46</h3>
+      <div class="sub">лид изначально не наш. Это зона маркетинга и качества трафика.</div>
+      <div class="fbars" id="rk-nekval"></div>
+      <div class="note">Нецелевыми считаем: Дубль · Не наш профиль · Нет номера · Тотальный недозвон · Не наш профиль.
+        Остальные причины из списка Amo идут в левую колонку.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Встречи — за сегодня (07.08)</h3>
+    <div class="sub">что закрыли по встречам именно в этот день · подробности — на вкладке «Встречи»</div>
+    <div class="grid g4" style="margin:0">
+      <div class="tile" style="border:0;background:var(--surface2)"><div class="k">Записали на встречу</div><div class="v">4</div></div>
+      <div class="tile" style="border:0;background:var(--surface2)"><div class="k">Провели встречу</div><div class="v">3</div></div>
+      <div class="tile" style="border:0;background:var(--surface2)"><div class="k">Не дошли</div><div class="v">1</div><div class="d">доходимость 75%</div></div>
+      <div class="tile" style="border:0;background:var(--surface2)"><div class="k">Продали после встречи</div><div class="v">1</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 3. ВСТРЕЧИ                                                    -->
+<!-- ============================================================= -->
+<section class="panel" id="p-pu">
+  <div class="grid g5">
+    <div class="tile"><div class="k">Записано на сегодня</div><div class="v">5</div><div class="d">07.08, четверг</div></div>
+    <div class="tile"><div class="k">Уже прошло сегодня</div><div class="v">3</div><div class="d">из них 1 не пришёл</div></div>
+    <div class="tile"><div class="k">Осталось сегодня</div><div class="v" style="color:var(--warn)">2</div><div class="d">ближайший в 17:00</div></div>
+    <div class="tile"><div class="k">Ждём до понедельника</div><div class="v">11</div><div class="d">08.08 – 10.08 включительно</div></div>
+    <div class="tile"><div class="k">Всего в календаре</div><div class="v">18</div><div class="d">все будущие записи</div></div>
+  </div>
+
+  <div class="card">
+    <h3>Хвосты — то, что провалится, если не тронуть</h3>
+    <div class="sub">записи, которые сами по себе не закроются</div>
+    <div class="grid g4" style="margin:0">
+      <div class="tile" style="border:0;background:var(--surface2)"><div class="k">Просрочены</div><div class="v" style="color:#e58585">3</div>
+        <div class="d">дата прошла, статус не проставлен</div></div>
+      <div class="tile" style="border:0;background:var(--surface2)"><div class="k">Без даты</div><div class="v" style="color:var(--warn)">4</div>
+        <div class="d">записан, но день не назначен</div></div>
+      <div class="tile" style="border:0;background:var(--surface2)"><div class="k">Без специалиста</div><div class="v" style="color:var(--warn)">2</div>
+        <div class="d">некому провести</div></div>
+      <div class="tile" style="border:0;background:var(--surface2)"><div class="k">Перенесены ≥2 раз</div><div class="v">2</div>
+        <div class="d">такие почти не доходят</div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Расписание: сегодня и до понедельника</h3>
+    <div class="sub">кто ведёт, чей лид, дошёл или нет</div>
+    <div id="pu-sched"></div>
+  </div>
+
+  <div class="card">
+    <h3>Сколько пройдёт по дням</h3>
+    <div class="sub">столбцы — назначенные встречи · серым — прогноз недошедших при текущей доходимости 64%</div>
+    <div class="legend"><span><i style="background:var(--s3)"></i>ожидаем, что придут</span><span><i style="background:var(--line2)"></i>прогноз недошедших</span></div>
+    <div id="ch-pu-days"></div>
+    <details><summary>показать таблицей</summary><div class="tw" id="tb-pu-days"></div></details>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 3. СКВОЗНАЯ                                                   -->
+<!-- ============================================================= -->
+<section class="panel" id="p-flow">
+  <div class="filters" style="margin-bottom:16px">
+    <div class="frow">
+      <span class="fl">Разрез</span>
+      <select id="cut-select">
+        <option>Диаграмма потоков (Санкей)</option>
+        <option selected>🎨 Креативы Meta (расход → ROAS)</option>
+        <option>Группы объявлений Meta</option>
+        <option>Кампании</option>
+        <option>Источник заявки</option>
+        <option>UTM source</option>
+        <option>Теги WhatsApp</option>
+        <option>Менеджеры</option>
+        <option>Продукты</option>
+      </select>
+      <span class="q" style="margin-left:8px">одна таблица, восемь способов посмотреть на те же заявки</span>
+    </div>
+  </div>
+
+  <div class="card" id="cut-creatives">
+    <h3>Сквозная по объявлениям Meta — каждое объявление отдельной строкой</h3>
+    <div class="sub">14 объявлений, как в Ads Manager · #ID — для сверки с кабинетом · связка: utm_content лида = id объявления · курс 488 ₸/$</div>
+
+    <div class="callout">
+      <div class="hd">💬 Заявки из WhatsApp считаем цифрой от самой Meta</div>
+      Реклама ведёт в переписку, и метка объявления до Amo не доезжает — поэтому колонка «Лиды CRM» по таким объявлениям пустая.
+      Но Meta сама знает, сколько диалогов начало каждое объявление: за период <b>44 диалога</b> по <b>$8,4</b>, ответили <b>89%</b>.
+      Это <b>не</b> то же самое, что лиды в CRM — у Meta своё окно атрибуции (7 дней с клика), поэтому цифры рядом, но не совпадут до единицы.
+      Держим их отдельными колонками и не смешиваем.
+      <br>⏳ События от Wazzup идут (последнее 4 мин назад), но заявок с меткой объявления среди них пока нет — метка приходит только в первом сообщении диалога из рекламы.
+      Пока привязки нет, касса по таким объявлениям модельная (знак ≈).
+    </div>
+
+    <div class="tw" id="tb-creo"></div>
+    <div class="note">«Хук %» — сколько из увидевших досмотрели первые 3 секунды. «Досмотр %» — сколько досмотрели до конца.
+      Высокий хук + высокий досмотр = креатив «залетел». Клик по названию — открыть объявление в Ads Manager, клик по цифре — список этих сделок в Amo.</div>
+  </div>
+
+  <div class="card" id="cut-sankey" style="display:none">
+    <h3>Сквозная — куда утекают заявки</h3>
+    <div class="sub">толщина потока = количество заявок · кликни по каналу, чтобы провалиться в кампании и креативы</div>
+    <div class="subtabs" id="sk-drill"></div>
+    <div class="legend" id="sk-legend"></div>
+    <div id="ch-sankey"></div>
+    <details><summary>показать таблицей</summary><div class="tw" id="tb-sankey"></div></details>
+  </div>
+
+  <div class="card">
+    <h3>Когорта одного дня</h3>
+    <div class="sub">берём заявки конкретного дня и смотрим, до чего они дошли — и что в этот день крутилось в рекламе</div>
+    <div class="frow" style="margin-bottom:14px">
+      <span class="fl">День захода лида</span>
+      <select id="coh-day"></select>
+      <span class="q" style="margin-left:8px">хвост когорты ещё дозревает — цикл сделки медиана 9 дней</span>
+    </div>
+    <div class="grid g5" id="coh-tiles" style="margin-bottom:16px"></div>
+    <div id="ch-cohort"></div>
+    <h3 style="margin-top:22px">Что крутилось в этот день</h3>
+    <div class="sub">объявления с расходом в день захода когорты и их показатели именно за этот день · клик по строке — куда дошли лиды с этого креатива</div>
+    <div class="tw" id="tb-cohort"></div>
+    <div id="coh-drill"></div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 4. МЕНЕДЖЕРЫ                                                  -->
+<!-- ============================================================= -->
+<section class="panel" id="p-op">
+  <div class="subtabs" id="op-sub"></div>
+
+  <div id="op-hunters" class="opblock">
+    <div class="grid g5">
+      <div class="tile"><div class="k">Заявок на первую линию</div><div class="v">128</div></div>
+      <div class="tile"><div class="k">Дозвон</div><div class="v">71,1%</div><div class="d">243 из 342 звонков</div></div>
+      <div class="tile"><div class="k">Время до 1-го звонка</div><div class="v">24 <small>мин</small></div><div class="d">медиана · ≤15 мин у 46%</div></div>
+      <div class="tile"><div class="k">Целевые</div><div class="v">52</div><div class="d">40,6% от заявок</div></div>
+      <div class="tile"><div class="k">Записей на встречу</div><div class="v">22</div><div class="d">42,3% от целевых</div></div>
+    </div>
+    <div class="card">
+      <h3>Первая линия</h3>
+      <div class="sub">кто как разбирает входящие</div>
+      <div class="tw" id="tb-hunters"></div>
+    </div>
+  </div>
+
+  <div id="op-teachers" class="opblock" style="display:none">
+    <div class="grid g4">
+      <div class="tile"><div class="k">Назначено встреч</div><div class="v">22</div></div>
+      <div class="tile"><div class="k">Проведено</div><div class="v">14</div></div>
+      <div class="tile"><div class="k">Доходимость</div><div class="v">63,6%</div><div class="d"><span class="badge down">▼8 п.п.</span> было 71,4%</div></div>
+      <div class="tile"><div class="k">Продаж после встречи</div><div class="v">6</div><div class="d">42,9% от проведённых</div></div>
+    </div>
+    <div class="card">
+      <h3>Кто проводит встречи</h3>
+      <div class="sub">доходимость — сколько записанных реально пришли</div>
+      <div class="tw" id="tb-teachers"></div>
+    </div>
+  </div>
+
+  <div id="op-closers" class="opblock" style="display:none">
+    <div class="grid g5">
+      <div class="tile"><div class="k">Принято после встречи</div><div class="v">14</div></div>
+      <div class="tile"><div class="k">Продажи</div><div class="v">6</div></div>
+      <div class="tile"><div class="k">Конверсия встреча → продажа</div><div class="v">42,9%</div></div>
+      <div class="tile"><div class="k">Касса</div><div class="v">3,42 <small>млн ₸</small></div></div>
+      <div class="tile"><div class="k">Средний чек</div><div class="v">570 <small>тыс ₸</small></div></div>
+    </div>
+    <div class="card">
+      <h3>Менеджеры сделки</h3>
+      <div class="sub">кто и на сколько закрывает после встречи</div>
+      <div class="tw" id="tb-closers"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 5. МАРКЕТИНГ                                                  -->
+<!-- ============================================================= -->
+<section class="panel" id="p-mkt">
+  <div class="grid g5">
+    <div class="tile"><div class="k">Расход</div><div class="v">$1 214</div><div class="d">592 тыс ₸ по курсу 488</div></div>
+    <div class="tile"><div class="k">Лиды</div><div class="v">128</div><div class="d">CPL $9,48</div></div>
+    <div class="tile"><div class="k">Целевые</div><div class="v">52</div><div class="d">CPQL $23,3</div></div>
+    <div class="tile"><div class="k">CAC</div><div class="v">$202</div><div class="d">на одну продажу</div></div>
+    <div class="tile"><div class="k">ДРР</div><div class="v">17,3%</div><div class="d">ROAS 5,8</div></div>
+  </div>
+
+  <div class="card">
+    <h3>CAC и ДРР по каналам</h3>
+    <div class="sub">две разные метрики — два графика, чтобы шкалы не врали</div>
+    <div class="grid g2" style="margin:0">
+      <div><div class="note" style="margin:0 0 8px">CAC, $ на продажу</div><div id="ch-cac"></div></div>
+      <div><div class="note" style="margin:0 0 8px">ДРР, % от кассы канала</div><div id="ch-drr"></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Вглубь: канал → кампания → креатив</h3>
+    <div class="sub">жми на строку, чтобы раскрыть уровень ниже</div>
+    <div class="tw" id="tb-mkt"></div>
+    <div class="note">Строки без расхода (органика) считаются в лидах и кассе, но не в CAC/ДРР канала.</div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 6. ЦИКЛЫ И ЗВОНКИ                                             -->
+<!-- ============================================================= -->
+<section class="panel" id="p-cycle">
+  <div class="grid g4">
+    <div class="tile"><div class="k">Заявка → запись на встречу</div><div class="v">1,8 <small>дн</small></div><div class="d">медиана · 22 сделки</div></div>
+    <div class="tile"><div class="k">Запись → проведение встречи</div><div class="v">2,4 <small>дн</small></div><div class="d">медиана · 14 сделок</div></div>
+    <div class="tile"><div class="k">Проведение встречи → продажа</div><div class="v">4,1 <small>дн</small></div><div class="d">медиана · 6 сделок</div></div>
+    <div class="tile"><div class="k">Весь цикл: заявка → оплата</div><div class="v">9 <small>дн</small></div><div class="d">медиана по 6 сделкам</div></div>
+  </div>
+  <div class="note" style="margin:-6px 0 16px">1,8 + 2,4 + 4,1 ≠ 9 — это нормально: медианы не складываются, каждый шаг считается по своему набору сделок.</div>
+
+  <div class="card">
+    <h3>Сколько дней занимает каждый шаг</h3>
+    <div class="sub">по горизонтали — дни, по вертикали — сколько сделок уложилось в этот срок. Одна шкала на все три.</div>
+    <div class="grid g3" style="margin:0" id="ch-hist"></div>
+  </div>
+
+  <div class="card">
+    <h3>Звонки и дозвоны <span class="q">источник — телефония</span></h3>
+    <div class="sub">процент дозвона важнее количества звонков</div>
+    <div class="grid g5" style="margin-bottom:16px">
+      <div class="tile" style="border:0;background:var(--surface2)"><div class="k">Звонков</div><div class="v">342</div></div>
+      <div class="tile" style="border:0;background:var(--surface2)"><div class="k">Дозвонов</div><div class="v">243</div></div>
+      <div class="tile" style="border:0;background:var(--surface2)"><div class="k">% дозвона</div><div class="v">71,1%</div></div>
+      <div class="tile" style="border:0;background:var(--surface2)"><div class="k">Средний разговор</div><div class="v">2:14</div></div>
+      <div class="tile" style="border:0;background:var(--surface2)"><div class="k">Заявок без звонка</div><div class="v" style="color:#e58585">11</div><div class="d">8,6% от всех</div></div>
+    </div>
+    <div class="note" style="margin:0 0 8px">% дозвона по первой линии</div>
+    <div id="ch-alo"></div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- WEEK TO WEEK                                                  -->
+<!-- ============================================================= -->
+<section class="panel" id="p-week">
+  <div class="subtabs">
+    <button class="chip on" id="wk-cal">📅 Календарь — что случилось на этой неделе</button>
+    <button class="chip" id="wk-coh">👥 Когорта — что вышло из лидов этой недели</button>
+  </div>
+
+  <div class="callout" id="wk-note"></div>
+
+  <div class="card">
+    <h3 id="wk-title">Недельная сводка, понедельник–воскресенье</h3>
+    <div class="sub" id="wk-sub">по каждой неделе: воронка, продажи, касса, конверсии, ДРР / CAC / CPL. Цвет — тепловая карта внутри колонки.</div>
+    <div class="hmleg">
+      <span>хуже</span><span class="ramp" id="hm-ramp"></span><span>лучше</span>
+      <span style="margin-left:14px">для ДРР, CAC и CPL наоборот — меньше значит лучше</span>
+    </div>
+    <div class="tw" style="max-height:560px"><table class="hm" id="tb-week"></table></div>
+    <div class="note">Верхняя неделя ещё идёт — она закрыта не полностью, сравнивать её с целыми неделями напрямую нельзя.
+      Цвет только помогает искать глазами: значение написано в каждой клетке, поэтому таблица читается и без цвета.</div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- БАШ НА БАШ                                                    -->
+<!-- ============================================================= -->
+<section class="panel" id="p-bash">
+  <div class="subtabs">
+    <button class="chip on">Месяц ↔ прошлый (то же число)</button>
+    <button class="chip">Неделя ↔ прошлая</button>
+    <button class="chip">Свой период</button>
+  </div>
+  <div class="card">
+    <h3>Два периода рядом</h3>
+    <div class="sub">01.08 – 07.08.2026 против 01.07 – 07.07.2026 · всё, что важно, одним экраном сверху вниз</div>
+    <div class="tw"><table class="bb" id="tb-bash"></table></div>
+    <div class="note">Стрелка вверх не всегда хорошо: для расходов, CPL, CAC и ДРР рост — это ухудшение, поэтому такие строки красятся наоборот.</div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 7. КАЧЕСТВО ДАННЫХ                                            -->
+<!-- ============================================================= -->
+<section class="panel" id="p-qa">
+  <div class="card">
+    <h3>Сверка источников: где цифры могут разойтись</h3>
+    <div class="sub">Проверено 7 мест. Требуют внимания: <b style="color:var(--crit)">3</b>.</div>
+    <div id="qa-list"></div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 8. ПЛАН                                                       -->
+<!-- ============================================================= -->
+<section class="panel" id="p-plan">
+  <div class="card">
+    <h3>План месяца и декомпозиция</h3>
+    <div class="sub">задаёшь цель по кассе, средний чек, конверсии и CPL — остальное считается обратной воронкой</div>
+    <div class="plan">
+      <div class="pi"><label>Цель кассы, ₸</label><input id="i-goal" value="30000000"></div>
+      <div class="pi"><label>Средний чек, ₸</label><input id="i-check" value="570000"></div>
+      <div class="pi"><label>Лид → запись, %</label><input id="i-c1" value="18"></div>
+      <div class="pi"><label>Запись → визит, %</label><input id="i-c2" value="65"></div>
+      <div class="pi"><label>Визит → продажа, %</label><input id="i-c3" value="45"></div>
+      <div class="pi"><label>CPL, $</label><input id="i-cpl" value="9"></div>
+    </div>
+    <div class="frow" style="justify-content:flex-end">
+      <button class="chip">↻ Подтянуть прошлый месяц</button>
+      <button class="chip on">Сохранить план</button>
+    </div>
+    <div class="tw" style="margin-top:16px" id="tb-plan"></div>
+    <div class="note" id="plan-note"></div>
+  </div>
+
+  <div class="card">
+    <h3>Конверсии: факт этого месяца против плана</h3>
+    <div class="sub">где именно воронка не добирает</div>
+    <div id="plan-conv" class="frow"></div>
+  </div>
+</section>
+
+<div class="foot">
+  Свежесть: amoCRM (заявки/воронка) — 0 мин · Лист продаж (оплаты) — 2 мин · Meta Ads — 12 мин · TikTok Ads — 12 мин · телефония (звонки) — 5 мин<br>
+  Обновляется само раз в 5 минут · след. через 3:12
+</div>
+</div>
+
+<div class="tip" id="tip"></div>
+
+<script>
+/* ===================== условные данные макета ===================== */
+const D = {
+  days: ["01.08","02.08","03.08","04.08","05.08","06.08","07.08"],
+  cash: [0, 570000, 0, 1140000, 600000, 0, 1110000],
+  leads:[19,22,14,21,21,12,19],
+  kval: [8,9,5,9,9,4,8],
+
+  funnel: [
+    {l:"Заявки",        v:128, c:null},
+    {l:"Целевые",          v:52,  c:"40,6%"},
+    {l:"Записи на встречу",  v:22,  c:"42,3%"},
+    {l:"Проведено встреч",  v:14,  c:"63,6%"},
+    {l:"Продажи",       v:6,   c:"42,9%"}
+  ],
+
+  reasonsKval:   [["Пропала потребность",11],["Дорого",8],["Не подошёл формат",7],["Не дошёл до встречи",6],["Ушёл к конкуренту",4],["Другое",3]],
+  reasonsNekval: [["Дубль",12],["Не наш профиль",11],["Нет номера",9],["Тотальный недозвон",9],["Не наш профиль",5]],
+
+  channels: [
+    {n:"Instagram (Meta)", c:"var(--s1)", leads:62, kval:27, work:14, nekval:21, spend:742, sales:3, cash:1710000},
+    {n:"TikTok",           c:"var(--s2)", leads:34, kval:12, work:6,  nekval:16, spend:398, sales:2, cash:1110000},
+    {n:"Органика",         c:"var(--s3)", leads:18, kval:9,  work:4,  nekval:5,  spend:0,   sales:1, cash:600000},
+    {n:"Квиз / сайт",      c:"var(--s4)", leads:14, kval:4,  work:6,  nekval:4,  spend:74,  sales:0, cash:0}
+  ],
+
+  hunters: [
+    {n:"Айгерим", leads:38, dozvon:78, first:12, kval:17, rec:8},
+    {n:"Данияр",  leads:31, dozvon:69, first:31, kval:12, rec:5},
+    {n:"Мадина",  leads:29, dozvon:74, first:18, kval:14, rec:6},
+    {n:"Ержан",   leads:30, dozvon:61, first:44, kval:9,  rec:3}
+  ],
+  teachers: [
+    {n:"Асель",  set:8, done:6, sales:3},
+    {n:"Тимур",  set:7, done:4, sales:2},
+    {n:"Камила", set:7, done:4, sales:1}
+  ],
+  closers: [
+    {n:"Нурлан", got:6, sales:3, cash:1750000, cyc:7},
+    {n:"Алия",   got:5, sales:2, cash:1070000, cyc:9},
+    {n:"Азамат", got:3, sales:1, cash:600000,  cyc:14}
+  ],
+
+  mkt: [
+    {lvl:1, n:"Instagram (Meta)", spend:742, leads:62, kval:27, rec:14, sales:3, cash:1710000, kids:[
+      {lvl:2, n:"Город · Квиз", spend:310, leads:28, kval:14, rec:7, sales:2, cash:1140000, kids:[
+        {lvl:3, n:"крео «Мама + ребёнок 15с»", spend:180, leads:17, kval:9, rec:5, sales:2, cash:1140000},
+        {lvl:3, n:"крео «Отзыв Айгуль»",       spend:130, leads:11, kval:5, rec:2, sales:0, cash:0}
+      ]},
+      {lvl:2, n:"CTWA · Broad",  spend:268, leads:21, kval:8, rec:5, sales:1, cash:570000, kids:[
+        {lvl:3, n:"крео «Робот-сборка»", spend:150, leads:13, kval:5, rec:3, sales:1, cash:570000},
+        {lvl:3, n:"крео «Кабинет 3D»",   spend:118, leads:8,  kval:3, rec:2, sales:0, cash:0}
+      ]},
+      {lvl:2, n:"Retarget", spend:164, leads:13, kval:5, rec:2, sales:0, cash:0}
+    ]},
+    {lvl:1, n:"TikTok", spend:398, leads:34, kval:12, rec:5, sales:2, cash:1110000, kids:[
+      {lvl:2, n:"TT · LEAD_SITE",    spend:232, leads:20, kval:8, rec:3, sales:2, cash:1110000},
+      {lvl:2, n:"TT · UGC креативы", spend:166, leads:14, kval:4, rec:2, sales:0, cash:0}
+    ]},
+    {lvl:1, n:"Органика",   spend:0,  leads:18, kval:9, rec:2, sales:1, cash:600000},
+    {lvl:1, n:"Квиз / сайт", spend:74, leads:14, kval:4, rec:1, sales:0, cash:0}
+  ],
+
+  hist: [
+    {t:"Заявка → запись на встречу", bins:[["0 дн",9],["1 дн",5],["2 дн",3],["3–5 дн",3],["6+ дн",2]]},
+    {t:"Запись → проведение",   bins:[["0 дн",2],["1 дн",4],["2 дн",4],["3–5 дн",3],["6+ дн",1]]},
+    {t:"Проведение → продажа",  bins:[["0 дн",1],["1 дн",1],["2 дн",1],["3–5 дн",2],["6+ дн",1]]}
+  ],
+
+  /* creo: [объявление, группа, #id, расход дня, показы дня, хук%, досмотр%, лидов в этот день,
+             из них целевых, записались, дошли, купили] */
+  cohorts: {
+    "05.08": {leads:21, kval:9, rec:4, done:2, sales:1, cash:600000, creo:[
+      ["кейс_до_после_15с","Город · Квиз","#4180026",28,5940,16.1,1.2, 4,2,1,1,1],
+      ["отзыв_клиента",    "Город · Квиз","#5930026",20,3480, 8.9,2.0, 2,1,1,0,0],
+      ["процесс_работы.mp4","CTWA · Broad", "#7710026",23,4810,13.1,0.9, 0,0,0,0,0],
+      ["TT_короткий_9с", "TT · LEAD_SITE",    "#3550026",21,7220,12.8,0.6, 3,2,1,1,0],
+      ["TT_UGC_крео3",   "TT · UGC креативы","#5540026",15,2110, 4.3,0.4, 2,0,0,0,0],
+      ["квиз_баннер_1",   "Квиз · сайт",       "#6620026", 7,1090,   0,  0, 2,1,1,0,0],
+      ["🔗 Органика",     "—",                 "—",        0,   0,   0,  0, 8,3,0,0,0]
+    ]},
+    "04.08": {leads:21, kval:9, rec:5, done:3, sales:2, cash:1140000, creo:[
+      ["кейс_до_после_15с","Город · Квиз","#4180026",31,6510,15.9,1.1, 5,3,2,2,1],
+      ["retarget_1",   "Retarget",     "#9690026",18,3240, 7.8,1.0, 2,1,1,1,1],
+      ["TT_проблема_решение", "TT · LEAD_SITE",    "#0760026",17,4600, 6.4,0.6, 3,1,1,0,0],
+      ["офис_3D.mp4",  "CTWA · Broad", "#0870026",19,4180, 7.1,1.6, 0,0,0,0,0],
+      ["квиз_баннер_2",   "Квиз · сайт",       "#0280026", 6, 950,   0,  0, 2,0,0,0,0],
+      ["🔗 Органика",     "—",                 "—",        0,   0,   0,  0, 9,4,1,0,0]
+    ]},
+    "03.08": {leads:14, kval:5, rec:2, done:1, sales:0, cash:0, creo:[
+      ["процесс_работы.mp4","CTWA · Broad", "#7710026",24,4980,13.8,0.9, 0,0,0,0,0],
+      ["отзыв_клиента",    "Город · Квиз","#5930026",17,3010, 8.1,1.8, 2,1,1,1,0],
+      ["TT_короткий_9с", "TT · LEAD_SITE",    "#3550026",19,6640,13.0,0.6, 2,1,1,0,0],
+      ["статика_цены",    "Retarget",     "#2110026", 9,1720,   0,  0, 1,0,0,0,0],
+      ["🔗 Органика",     "—",                 "—",        0,   0,   0,  0, 9,3,0,0,0]
+    ]},
+    "02.08": {leads:22, kval:9, rec:4, done:3, sales:2, cash:1110000, creo:[
+      ["кейс_до_после_15с","Город · Квиз","#4180026",33,6980,15.2,1.1, 5,3,2,2,1],
+      ["TT_короткий_9с", "TT · LEAD_SITE",    "#3550026",24,8410,13.6,0.7, 4,2,1,1,1],
+      ["TT_UGC_крео5",   "TT · UGC креативы","#7350026",12,1690, 8.1,0.5, 1,0,0,0,0],
+      ["квиз_баннер_1",   "Квиз · сайт",       "#6620026", 8,1240,   0,  0, 2,1,1,0,0],
+      ["🔗 Органика",     "—",                 "—",        0,   0,   0,  0,10,3,0,0,0]
+    ]},
+    "01.08": {leads:19, kval:8, rec:3, done:2, sales:1, cash:570000, creo:[
+      ["кейс_до_после_15с","Город · Квиз","#4180026",27,5720,15.4,1.0, 4,2,1,1,1],
+      ["процесс_работы.mp4","CTWA · Broad", "#7710026",21,4390,13.2,0.8, 0,0,0,0,0],
+      ["retarget_1",   "Retarget",     "#9690026",14,2560, 7.2,1.1, 2,1,1,1,0],
+      ["TT_проблема_решение", "TT · LEAD_SITE",    "#0760026",15,4100, 6.0,0.6, 2,1,0,0,0],
+      ["🔗 Органика",     "—",                 "—",        0,   0,   0,  0,11,4,1,0,0]
+    ]}
+  },
+
+  qa: [
+    {s:"r", t:"Источник заявки не заполнен", f:"заявок за период: <b>128</b> · без источника: <b>96</b>",
+     p:"75% заявок нельзя отнести ни к одному каналу — на эту долю занижена окупаемость каждого канала.",
+     d:"Сделать поле обязательным на этапе квалификации."},
+    {s:"r", t:"Заявки без единого звонка", f:"заявок за период: <b>128</b> · ни одного звонка: <b>11</b>",
+     p:"8,6% заявок не получили ни одного звонка. Это оплаченный трафик, с которым не поговорили.",
+     d:"Разобрать на планёрке список необзвоненных."},
+    {s:"r", t:"Одинаковые имена у разных учёток amoCRM", f:'amoCRM: «Ержан» — <b>2 учётки</b> (id 12944682, 13837066)',
+     p:"Менеджер во всех отчётах опознаётся по имени, поэтому цифры двух учёток складываются в одну строку.",
+     d:"Проверьте, кто это. Разные люди — переименуйте одного."},
+    {s:"y", t:"Продажи без суммы в поле «Бюджет»", f:"продаж за период: <b>6</b> · без суммы: <b>1</b>",
+     p:"Одна оплата попадёт в количество продаж, но не в кассу — средний чек будет занижен.",
+     d:"Дозаполнить поле в карточке сделки."},
+    {s:"g", t:"Свежесть рекламного кабинета", f:"последний день с расходом: <b>2026-08-07</b> · сегодня: <b>2026-08-07</b>",
+     p:"Данные кабинета доезжают до сегодня — расход подтягивается автоматически.", d:"Ничего делать не нужно."},
+    {s:"g", t:"Расход: кабинет против таблицы", f:"кабинет (по объявлениям): <b>$1 208</b> · таблица дашборда: <b>$1 214</b>",
+     p:"Расхождение +0,5%. Цифры сведены — на дашборде реально списанные кабинетом деньги.", d:"Ничего делать не нужно."},
+    {s:"g", t:"Дубли оплат в листе продаж", f:"оплат за период: <b>6</b> · подозрений на дубль: <b>0</b>",
+     p:"Одинаковых пар «лид + сумма + дата» не найдено.", d:"Ничего делать не нужно."}
+  ]
+};
+
+/* ===================== утилиты ===================== */
+const $ = s => document.querySelector(s);
+const fmt = n => n.toLocaleString("ru-RU");
+const money = n => n>=1e6 ? (n/1e6).toLocaleString("ru-RU",{maximumFractionDigits:2})+" млн ₸"
+                 : n>=1e3 ? Math.round(n/1e3).toLocaleString("ru-RU")+" тыс ₸" : n+" ₸";
+const pct = (a,b) => b ? (a/b*100).toLocaleString("ru-RU",{maximumFractionDigits:1})+"%" : "—";
+const SVG = "http://www.w3.org/2000/svg";
+const el = (t,a={},p) => { const e=document.createElementNS(SVG,t); for(const k in a) e.setAttribute(k,a[k]); if(p)p.appendChild(e); return e; };
+
+const tip = $("#tip");
+function bindTip(node, html){
+  node.addEventListener("mousemove", e => {
+    tip.innerHTML = html; tip.style.opacity = 1;
+    let x = e.clientX+14, y = e.clientY+14;
+    if (x + 270 > innerWidth) x = e.clientX - 270;
+    tip.style.left = x+"px"; tip.style.top = y+"px";
+  });
+  node.addEventListener("mouseleave", () => tip.style.opacity = 0);
+}
+
+/* ===================== вкладки ===================== */
+const TABS = [
+  ["p-rnp","📊 РНП"],["p-kval","🎯 Заявки · качество"],["p-pu","🤝 Встречи"],["p-flow","🔀 Сквозная"],
+  ["p-op","👥 Менеджеры"],["p-mkt","📣 Маркетинг"],["p-cycle","⏱ Циклы и звонки"],
+  ["p-week","📆 WeekToWeek"],["p-bash","⚖️ БашНаБаш"],["p-qa","🔍 Качество данных"],["p-plan","🧭 План"]
+];
+TABS.forEach(([id,name],i) => {
+  const b = document.createElement("button");
+  b.textContent = name; if(i===0) b.className="on";
+  b.onclick = () => {
+    document.querySelectorAll("#tabs button").forEach(x=>x.classList.remove("on"));
+    document.querySelectorAll(".panel").forEach(x=>x.classList.remove("on"));
+    b.classList.add("on"); $("#"+id).classList.add("on"); scrollTo(0,0);
+  };
+  $("#tabs").appendChild(b);
+});
+
+/* ===================== график: столбцы + линия тренда ===================== */
+function barLine(host, cats, vals, opts={}){
+  const W=1080, H=opts.h||210, ML=64, MR=16, MT=14, MB=28;
+  const pw=W-ML-MR, ph=H-MT-MB;
+  const max = Math.max(...vals, 1)*1.15;
+  const s = el("svg",{viewBox:`0 0 ${W} ${H}`, width:"100%", height:H});
+  // сетка
+  for(let i=0;i<=4;i++){
+    const y = MT+ph-ph*i/4;
+    el("line",{x1:ML,x2:W-MR,y1:y,y2:y,stroke:"var(--grid)","stroke-width":1},s);
+    const lab = el("text",{x:ML-10,y:y+4,fill:"var(--muted)","font-size":11,"text-anchor":"end"},s);
+    lab.textContent = opts.money ? (max*i/4>=1e6 ? (max*i/4/1e6).toFixed(1).replace(".",",")+"м" : Math.round(max*i/4/1e3)+"к") : Math.round(max*i/4);
+  }
+  const bw = pw/cats.length;
+  vals.forEach((v,i)=>{
+    const h = v/max*ph, x = ML+bw*i+bw*0.31, w = bw*0.38;
+    const r = el("rect",{x, y:MT+ph-h, width:w, height:Math.max(h,1.5), rx:4, fill:"var(--s1)"},s);
+    const hit = el("rect",{x:ML+bw*i, y:MT, width:bw, height:ph, fill:"transparent"},s);
+    bindTip(hit, `<b>${cats[i]}</b><br>${opts.money?money(v):fmt(v)}`);
+    const t = el("text",{x:ML+bw*i+bw/2, y:H-9, fill:"var(--muted)","font-size":11,"text-anchor":"middle"},s);
+    t.textContent = cats[i];
+  });
+  // линия среднего за 7 дней
+  if(opts.trend){
+    let pts=[];
+    vals.forEach((_,i)=>{
+      const from=Math.max(0,i-6), sl=vals.slice(from,i+1);
+      const avg = sl.reduce((a,b)=>a+b,0)/sl.length;
+      pts.push([ML+bw*i+bw/2, MT+ph-avg/max*ph]);
+    });
+    el("path",{d:"M"+pts.map(p=>p[0].toFixed(1)+","+p[1].toFixed(1)).join(" L "),
+      fill:"none",stroke:"var(--s6)","stroke-width":2,"stroke-linecap":"round"},s);
+  }
+  host.appendChild(s);
+}
+
+/* ===================== график: две серии столбцами ===================== */
+function grouped(host, cats, series){
+  const W=1080,H=210,ML=44,MR=16,MT=14,MB=28, pw=W-ML-MR, ph=H-MT-MB;
+  const max = Math.max(...series.flatMap(s=>s.v))*1.2;
+  const s = el("svg",{viewBox:`0 0 ${W} ${H}`,width:"100%",height:H});
+  for(let i=0;i<=4;i++){ const y=MT+ph-ph*i/4;
+    el("line",{x1:ML,x2:W-MR,y1:y,y2:y,stroke:"var(--grid)"},s);
+    const t=el("text",{x:ML-10,y:y+4,fill:"var(--muted)","font-size":11,"text-anchor":"end"},s); t.textContent=Math.round(max*i/4);}
+  const bw=pw/cats.length, n=series.length, iw=bw*0.7/n;
+  cats.forEach((c,i)=>{
+    series.forEach((se,j)=>{
+      const v=se.v[i], h=v/max*ph;
+      el("rect",{x:ML+bw*i+bw*0.15+iw*j+(j?2:0), y:MT+ph-h, width:iw-2, height:Math.max(h,1.5), rx:4, fill:se.c},s);
+    });
+    const hit=el("rect",{x:ML+bw*i,y:MT,width:bw,height:ph,fill:"transparent"},s);
+    bindTip(hit, `<b>${c}</b><br>`+series.map(se=>`${se.n}: ${se.v[i]}`).join("<br>"));
+    const t=el("text",{x:ML+bw*i+bw/2,y:H-9,fill:"var(--muted)","font-size":11,"text-anchor":"middle"},s); t.textContent=c;
+  });
+  host.appendChild(s);
+}
+
+/* ===================== горизонтальные бары ===================== */
+function hbars(host, rows, color, total){
+  const max = Math.max(...rows.map(r=>r[1]));
+  host.innerHTML = rows.map(r=>`
+    <div class="fb">
+      <div class="lb">${r[0]}</div>
+      <div class="tr"><i style="width:${r[1]/max*100}%;background:${color}"></i></div>
+      <div class="vv"><b>${r[1]}</b> · ${pct(r[1],total)}</div>
+    </div>`).join("");
+}
+
+/* ===================== санки ===================== */
+function sankey(host, nodes, links){
+  host.innerHTML="";
+  const cols = Math.max(...nodes.map(n=>n.col))+1;
+  const W=1080, NW=13, ML=160, MR=120, PAD=9;
+  const colGap=(W-ML-MR-cols*NW)/(cols-1);
+  nodes.forEach(n=>{ n.in=0; n.out=0; });
+  const byId = Object.fromEntries(nodes.map(n=>[n.id,n]));
+  links.forEach(l=>{ byId[l.t].in += l.v; byId[l.s].out += l.v; });
+  nodes.forEach(n => n.val = Math.max(n.in, n.out));
+  const colSum = [];
+  for(let c=0;c<cols;c++){
+    const ns = nodes.filter(n=>n.col===c);
+    colSum.push({sum: ns.reduce((a,b)=>a+b.val,0), cnt: ns.length});
+  }
+  const H = 400, maxSum = Math.max(...colSum.map((c,i)=>c.sum + 0));
+  const maxCnt = Math.max(...colSum.map(c=>c.cnt));
+  const scale = (H - (maxCnt-1)*PAD) / maxSum;
+
+  for(let c=0;c<cols;c++){
+    const ns = nodes.filter(n=>n.col===c);
+    const tot = ns.reduce((a,b)=>a+b.val,0)*scale + (ns.length-1)*PAD;
+    let y = (H-tot)/2;
+    ns.forEach(n=>{ n.x = ML + c*(NW+colGap); n.y = y; n.h = n.val*scale; n.oy = y; n.iy = y; y += n.h + PAD; });
+  }
+  const s = el("svg",{viewBox:`0 0 ${W} ${H+42}`, width:"100%"});
+  const gL = el("g",{},s);
+  links.forEach(l=>{
+    const a=byId[l.s], b=byId[l.t];
+    const h=l.v*scale, x0=a.x+NW, x1=b.x, y0=a.oy, y1=b.iy;
+    a.oy+=h; b.iy+=h;
+    const mx=(x0+x1)/2;
+    const d=`M${x0},${y0} C${mx},${y0} ${mx},${y1} ${x1},${y1} L${x1},${y1+h} C${mx},${y1+h} ${mx},${y0+h} ${x0},${y0+h} Z`;
+    const p=el("path",{d, fill:l.c||"var(--s1)", "fill-opacity":.26},gL);
+    p.addEventListener("mouseenter",()=>p.setAttribute("fill-opacity",.55));
+    p.addEventListener("mouseleave",()=>p.setAttribute("fill-opacity",.26));
+    bindTip(p, `<b>${a.label} → ${b.label}</b><br>${l.v} заявок · ${pct(l.v,a.val)} от «${a.label}»`);
+  });
+  nodes.forEach(n=>{
+    const r=el("rect",{x:n.x,y:n.y,width:NW,height:Math.max(n.h,2),rx:3,fill:n.c||"var(--s1)"},s);
+    bindTip(r, `<b>${n.label}</b><br>${n.val} заявок`);
+    const left = n.col === 0;
+    const t=el("text",{x: left ? n.x-8 : n.x+NW+8, y:n.y+Math.max(n.h,2)/2+4,
+      fill:"var(--ink2)","font-size":11.5,"text-anchor": left?"end":"start"},s);
+    t.textContent = `${n.label} · ${n.val}`;
+  });
+  host.appendChild(s);
+}
+
+/* ===================== заполнение ===================== */
+barLine($("#ch-cash"), D.days, D.cash, {money:true, trend:true});
+$("#tb-cash").innerHTML = `<table><tr><th>День</th>${D.days.map(d=>`<th>${d}</th>`).join("")}<th>Итого</th></tr>
+  <tr><td>Касса, ₸</td>${D.cash.map(v=>`<td>${fmt(v)}</td>`).join("")}<td>${fmt(D.cash.reduce((a,b)=>a+b,0))}</td></tr></table>`;
+
+grouped($("#ch-leads"), D.days, [{n:"Заявки",v:D.leads,c:"var(--s1)"},{n:"Целевые",v:D.kval,c:"var(--s3)"}]);
+$("#tb-leads").innerHTML = `<table><tr><th>День</th>${D.days.map(d=>`<th>${d}</th>`).join("")}<th>Итого</th></tr>
+  <tr><td>Заявки</td>${D.leads.map(v=>`<td>${v}</td>`).join("")}<td>${D.leads.reduce((a,b)=>a+b,0)}</td></tr>
+  <tr><td>Целевые</td>${D.kval.map(v=>`<td>${v}</td>`).join("")}<td>${D.kval.reduce((a,b)=>a+b,0)}</td></tr>
+  <tr><td>% целевых</td>${D.kval.map((v,i)=>`<td>${pct(v,D.leads[i])}</td>`).join("")}<td>${pct(52,128)}</td></tr></table>`;
+
+$("#funnel").innerHTML = D.funnel.map(f=>`
+  <div class="fb">
+    <div class="lb">${f.l}</div>
+    <div class="tr"><i style="width:${f.v/128*100}%;background:var(--s1)"></i></div>
+    <div class="vv"><b>${f.v}</b>${f.c?` · <span style="color:var(--ink2)">${f.c}</span>`:""}</div>
+  </div>`).join("");
+
+hbars($("#rk-kval"), D.reasonsKval, "var(--s3)", 39);
+hbars($("#rk-nekval"), D.reasonsNekval, "var(--crit)", 46);
+hbars($("#rk-kval2"), D.reasonsKval, "var(--s3)", 39);
+hbars($("#rk-nekval2"), D.reasonsNekval, "var(--crit)", 46);
+
+/* --- встречи по дням: назначено / прошло / не пришли / впереди --- */
+D.puSlots  = [3,4,2,4,3,3,3];   // слотов на этот день
+D.puDone   = [2,3,1,3,2,1,2];   // реально прошли
+D.puMiss   = [1,1,1,1,1,2,1];   // не пришли (последний день частично впереди)
+D.puAhead  = [0,0,0,0,0,0,0];
+D.puDone[6]=2; D.puMiss[6]=1; D.puAhead[6]=0;
+(function(){
+  const host=$("#ch-pu-fact"), W=1080,H=210,ML=44,MR=16,MT=14,MB=28, pw=W-ML-MR, ph=H-MT-MB;
+  const max=Math.max(...D.puSlots)*1.35;
+  const s=el("svg",{viewBox:`0 0 ${W} ${H}`,width:"100%",height:H});
+  for(let i=0;i<=4;i++){const y=MT+ph-ph*i/4;
+    el("line",{x1:ML,x2:W-MR,y1:y,y2:y,stroke:"var(--grid)"},s);
+    const t=el("text",{x:ML-10,y:y+4,fill:"var(--muted)","font-size":11,"text-anchor":"end"},s);t.textContent=Math.round(max*i/4);}
+  const bw=pw/D.days.length;
+  D.days.forEach((c,i)=>{
+    const x=ML+bw*i+bw*0.34, w=bw*0.32;
+    const hd=D.puDone[i]/max*ph, hm=D.puMiss[i]/max*ph, ha=D.puAhead[i]/max*ph;
+    let y=MT+ph;
+    if(D.puDone[i]){ y-=hd; el("rect",{x,y,width:w,height:Math.max(hd,2),rx:4,fill:"var(--s3)"},s); }
+    if(D.puMiss[i]){ y-=hm+2; el("rect",{x,y,width:w,height:Math.max(hm,2),rx:4,fill:"var(--line2)"},s); }
+    if(D.puAhead[i]){ y-=ha+2; el("rect",{x,y,width:w,height:Math.max(ha,2),rx:4,fill:"var(--s4)"},s); }
+    const hit=el("rect",{x:ML+bw*i,y:MT,width:bw,height:ph,fill:"transparent"},s);
+    bindTip(hit,`<b>${c}</b><br>назначено ${D.puSlots[i]}<br>прошли ${D.puDone[i]} · не пришли ${D.puMiss[i]}<br>доходимость ${pct(D.puDone[i],D.puSlots[i])}`);
+    const t=el("text",{x:ML+bw*i+bw/2,y:H-9,fill:"var(--muted)","font-size":11,"text-anchor":"middle"},s);t.textContent=c;
+    const v=el("text",{x:ML+bw*i+bw/2,y:MT+ph-(hd+hm+ha)-8,fill:"var(--ink2)","font-size":11,"text-anchor":"middle"},s);
+    v.textContent=D.puSlots[i];
+  });
+  host.appendChild(s);
+})();
+$("#tb-pu-fact").innerHTML = `<table><tr><th>День</th>${D.days.map(d=>`<th>${d}</th>`).join("")}<th>Итого</th></tr>
+  <tr><td>Назначено встреч</td>${D.puSlots.map(v=>`<td>${v}</td>`).join("")}<td>${D.puSlots.reduce((a,b)=>a+b,0)}</td></tr>
+  <tr><td>Прошли</td>${D.puDone.map(v=>`<td>${v}</td>`).join("")}<td>${D.puDone.reduce((a,b)=>a+b,0)}</td></tr>
+  <tr><td>Не пришли</td>${D.puMiss.map(v=>`<td>${v}</td>`).join("")}<td>${D.puMiss.reduce((a,b)=>a+b,0)}</td></tr>
+  <tr><td>Доходимость</td>${D.puDone.map((v,i)=>`<td>${pct(v,D.puSlots[i])}</td>`).join("")}<td>${pct(14,22)}</td></tr></table>`;
+
+/* --- «Показать все цифры» + «По дням» --- */
+D.spendD = [172,186,151,190,178,155,182];
+D.callsD = [52,58,41,55,50,35,51];
+D.dozvD  = [38,42,28,40,35,24,36];
+D.salesD = [0,1,0,2,1,0,2];
+$("#tb-allnums").innerHTML = `<table>
+  <tr><th>Показатель</th><th>Период</th><th>Было (пред. период)</th><th>Изменение</th></tr>
+  ${[
+    ["ТРАФИК","",""],
+    ["Расход на рекламу","$1 214","$1 114"],["Заявок","128","157"],["CPL","$9,48","$7,09"],
+    ["Заявок с рекламы","96","121"],["Заявок без рекламы","32","36"],
+    ["ОБЗВОН",""," "],
+    ["Попыток звонка","342","388"],["Дозвонов","243","263"],["% дозвона","71,1%","67,7%"],
+    ["Минут разговоров","9ч 02м","9ч 47м"],["Средний разговор","2:14","2:14"],
+    ["Попыток на заявку","2,7","2,5"],["Заявок без звонка","11","6"],
+    ["КОНВЕРСИИ","",""],
+    ["Заявка → целевой","40,6%","37,6%"],["Целевой → запись","42,3%","35,6%"],
+    ["Запись → визит","63,6%","85,7%"],["Визит → продажа","42,9%","44,4%"],
+    ["Заявка → продажа","4,7%","5,1%"],
+    ["ДЕНЬГИ","",""],
+    ["Касса (новые оплаты)","3,42 млн ₸","4,46 млн ₸"],["Доплаты","310 тыс ₸","420 тыс ₸"],
+    ["Общая касса","3,73 млн ₸","4,88 млн ₸"],["Средний чек","570 тыс ₸","558 тыс ₸"],
+    ["CAC","$202","$139"],["ROAS","5,8","8,2"],["ДРР","17,3%","12,2%"],["ROMI","481%","719%"]
+  ].map(r=> r[1]===""
+    ? `<tr class="sec" style="background:var(--surface2)"><td colspan="4" style="font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--ink);font-weight:650">${r[0]}</td></tr>`
+    : `<tr><td>${r[0]}</td><td>${r[1]}</td><td style="color:var(--muted)">${r[2]}</td><td class="q">—</td></tr>`
+  ).join("")}</table>`;
+
+(function(){
+  const rows = [
+    {t:"Заявки",       v:D.leads,  good:1, f:v=>v},
+    {t:"Целевые",      v:D.kval,   good:1, f:v=>v},
+    {t:"Записи на встречу", v:D.puSlots,good:1, f:v=>v},
+    {t:"Прошли встречу", v:D.puDone, good:1, f:v=>v},
+    {t:"Продажи",      v:D.salesD, good:1, f:v=>v},
+    {t:"Касса",        v:D.cash,   good:1, f:v=>v?Math.round(v/1000)+"к":"0"},
+    {t:"Расход, $",    v:D.spendD, good:-1,f:v=>"$"+v},
+    {t:"Звонков",      v:D.callsD, good:0, f:v=>v},
+    {t:"Дозвонов",     v:D.dozvD,  good:1, f:v=>v},
+    {t:"% дозвона",    v:D.dozvD.map((d,i)=>Math.round(d/D.callsD[i]*100)), good:1, f:v=>v+"%"}
+  ];
+  $("#tb-byday").innerHTML = `<tr><th>Показатель</th>${D.days.map(d=>`<th>${d}</th>`).join("")}<th>Итого</th></tr>` +
+    rows.map(r=>{
+      const mn=Math.min(...r.v), mx=Math.max(...r.v);
+      const sum = r.t==="% дозвона" ? Math.round(243/342*100)+"%" : r.f(r.v.reduce((a,b)=>a+b,0));
+      return `<tr><td>${r.t}</td>${r.v.map(v=>{
+        const bg = r.good===0?"transparent":heat(mx===mn?0.5:(v-mn)/(mx-mn), r.good);
+        return `<td class="c" style="background:${bg}">${r.f(v)}</td>`;
+      }).join("")}<td><b style="color:var(--ink)">${sum}</b></td></tr>`;
+    }).join("");
+})();
+
+/* --- санки: общий + провал в канал --- */
+const drills = ["Все каналы", ...D.channels.map(c=>c.n)];
+drills.forEach((name,i)=>{
+  const b=document.createElement("button"); b.className="chip"+(i?"":" on"); b.textContent=name;
+  b.onclick=()=>{ document.querySelectorAll("#sk-drill .chip").forEach(x=>x.classList.remove("on")); b.classList.add("on"); drawSankey(i?name:null); };
+  $("#sk-drill").appendChild(b);
+});
+$("#sk-legend").innerHTML = D.channels.map(c=>`<span><i style="background:${c.c}"></i>${c.n}</span>`).join("")
+  + `<span><i style="background:var(--line2)"></i>отвалились</span>`;
+
+function drawSankey(chan){
+  const nodes=[], links=[];
+  let src;
+  if(!chan){
+    src = D.channels.map(c=>({name:c.n, color:c.c, kval:c.kval, nekval:c.nekval, work:c.work}));
+  } else {
+    const c = D.channels.find(x=>x.n===chan);
+    const camps = (D.mkt.find(m=>m.n===chan)||{}).kids || [{n:chan, leads:c.leads, kval:c.kval}];
+    src = camps.map(k=>{
+      const share = k.kval/c.kval;
+      return {name:k.n, color:c.c, kval:k.kval,
+        nekval:Math.round(c.nekval*share), work:Math.max(0,(k.leads||0)-k.kval-Math.round(c.nekval*share))};
+    });
+  }
+  src.forEach((s,i)=>nodes.push({id:"src"+i, label:s.name, col:0, c:s.color}));
+  nodes.push({id:"kval",   label:"Целевые",     col:1, c:"var(--s3)"});
+  nodes.push({id:"nekval", label:"Нецелевые",   col:1, c:"var(--line2)"});
+  nodes.push({id:"work",   label:"Ещё в работе",col:1, c:"var(--s4)"});
+  nodes.push({id:"rec",    label:"Записан на встречу",col:2, c:"var(--s3)"});
+  nodes.push({id:"norec",  label:"Без записи",   col:2, c:"var(--line2)"});
+  nodes.push({id:"done",   label:"Пришёл на встречу", col:3, c:"var(--s3)"});
+  nodes.push({id:"nodone", label:"Не дошёл",     col:3, c:"var(--line2)"});
+  nodes.push({id:"sale",   label:"Продажа",      col:4, c:"var(--s1)"});
+  nodes.push({id:"nosale", label:"Без продажи",  col:4, c:"var(--line2)"});
+
+  src.forEach((s,i)=>{
+    links.push({s:"src"+i,t:"kval",  v:s.kval,  c:s.color});
+    links.push({s:"src"+i,t:"nekval",v:s.nekval,c:s.color});
+    links.push({s:"src"+i,t:"work",  v:s.work,  c:s.color});
+  });
+  const K = src.reduce((a,b)=>a+b.kval,0);
+  const rec = Math.round(K*22/52), done = Math.round(rec*14/22), sale = Math.max(1,Math.round(done*6/14));
+  links.push({s:"kval",t:"rec",v:rec,c:"var(--s3)"});
+  links.push({s:"kval",t:"norec",v:K-rec,c:"var(--line2)"});
+  links.push({s:"rec",t:"done",v:done,c:"var(--s3)"});
+  links.push({s:"rec",t:"nodone",v:rec-done,c:"var(--line2)"});
+  links.push({s:"done",t:"sale",v:sale,c:"var(--s1)"});
+  links.push({s:"done",t:"nosale",v:done-sale,c:"var(--line2)"});
+
+  sankey($("#ch-sankey"), nodes.filter(n=>true), links.filter(l=>l.v>0));
+  $("#tb-sankey").innerHTML = `<table><tr><th>Откуда</th><th>Заявки</th><th>Целевые</th><th>Нецелевые</th><th>В работе</th></tr>
+    ${src.map(s=>`<tr><td>${s.name}</td><td>${s.kval+s.nekval+s.work}</td><td>${s.kval}</td><td>${s.nekval}</td><td>${s.work}</td></tr>`).join("")}
+    <tr class="tot"><td>Итого</td><td>${src.reduce((a,b)=>a+b.kval+b.nekval+b.work,0)}</td><td>${K}</td>
+      <td>${src.reduce((a,b)=>a+b.nekval,0)}</td><td>${src.reduce((a,b)=>a+b.work,0)}</td></tr></table>`;
+}
+drawSankey(null);
+
+/* --- когорта --- */
+const cohDays = Object.keys(D.cohorts);
+$("#coh-day").innerHTML = cohDays.map(d=>`<option>${d}.2026</option>`).join("");
+function drawCohort(day){
+  const c = D.cohorts[day];
+  $("#coh-tiles").innerHTML = `
+    <div class="tile"><div class="k">Заявок в этот день</div><div class="v">${c.leads}</div></div>
+    <div class="tile"><div class="k">Из них целевых</div><div class="v">${c.kval}</div><div class="d">${pct(c.kval,c.leads)}</div></div>
+    <div class="tile"><div class="k">Записались на встречу</div><div class="v">${c.rec}</div><div class="d">${pct(c.rec,c.kval)} от целевых</div></div>
+    <div class="tile"><div class="k">Пришли на встречу</div><div class="v">${c.done}</div><div class="d">${pct(c.done,c.rec)} доходимость</div></div>
+    <div class="tile"><div class="k">Купили</div><div class="v">${c.sales}</div><div class="d">${money(c.cash)}</div></div>`;
+  const nodes=[
+    {id:"l",label:"Заявки "+day,col:0,c:"var(--s1)"},
+    {id:"k",label:"Целевые",col:1,c:"var(--s3)"},{id:"nk",label:"Нецелевые / в работе",col:1,c:"var(--line2)"},
+    {id:"r",label:"Записан",col:2,c:"var(--s3)"},{id:"nr",label:"Без записи",col:2,c:"var(--line2)"},
+    {id:"d",label:"Пришёл",col:3,c:"var(--s3)"},{id:"nd",label:"Не дошёл",col:3,c:"var(--line2)"},
+    {id:"s",label:"Купил",col:4,c:"var(--s1)"},{id:"ns",label:"Не купил",col:4,c:"var(--line2)"}];
+  const links=[
+    {s:"l",t:"k",v:c.kval,c:"var(--s1)"},{s:"l",t:"nk",v:c.leads-c.kval,c:"var(--line2)"},
+    {s:"k",t:"r",v:c.rec,c:"var(--s3)"},{s:"k",t:"nr",v:c.kval-c.rec,c:"var(--line2)"},
+    {s:"r",t:"d",v:c.done,c:"var(--s3)"},{s:"r",t:"nd",v:c.rec-c.done,c:"var(--line2)"},
+    {s:"d",t:"s",v:c.sales,c:"var(--s1)"},{s:"d",t:"ns",v:c.done-c.sales,c:"var(--line2)"}];
+  sankey($("#ch-cohort"), nodes, links.filter(l=>l.v>0));
+
+  const spD = c.creo.reduce((a,r)=>a+r[3],0), ldD = c.creo.reduce((a,r)=>a+r[7],0);
+  $("#tb-cohort").innerHTML = `<table>
+    <tr><th style="min-width:270px">Объявление</th><th>Расход дня</th><th>Показы</th><th>Хук %</th><th>Досмотр %</th>
+      <th>Заявок</th><th>CPL дня</th><th>Целевые</th><th>Записались</th><th>Дошли</th><th>Купили</th></tr>
+    ${c.creo.map((r,i)=>`<tr class="drill" data-i="${i}">
+      <td><span class="tri">▸</span><span class="${r[3]?"adname":""}">${r[0]}</span> <span class="q">${r[1]!=="—"?"· "+r[1]+" "+r[2]:""}</span></td>
+      <td>${r[3]?"$"+r[3]:"—"}</td><td>${r[4]?fmt(r[4]):"—"}</td>
+      <td>${r[5]?r[5].toLocaleString("ru-RU")+"%":"—"}</td><td>${r[6]?r[6].toLocaleString("ru-RU")+"%":"—"}</td>
+      <td>${r[7]?`<span class="lk">${r[7]} 🔎</span>`:"0"}</td>
+      <td>${r[3]&&r[7]?"$"+(r[3]/r[7]).toFixed(1).replace(".",","):"—"}</td>
+      <td>${r[8]}</td><td>${r[9]}</td><td>${r[10]}</td><td><b style="color:var(--ink)">${r[11]}</b></td></tr>`).join("")}
+    <tr class="tot"><td>Итого за ${day}</td><td>$${spD}</td>
+      <td>${fmt(c.creo.reduce((a,r)=>a+r[4],0))}</td><td>—</td><td>—</td>
+      <td>${ldD}</td><td>$${(spD/ldD).toFixed(1).replace(".",",")}</td>
+      <td>${c.kval}</td><td>${c.rec}</td><td>${c.done}</td><td>${c.sales}</td></tr>
+  </table>`;
+  $("#coh-drill").innerHTML = "";
+  document.querySelectorAll("#tb-cohort tr.drill").forEach(tr=>tr.onclick=()=>{
+    const r = c.creo[+tr.dataset.i];
+    if(!r[7]){ $("#coh-drill").innerHTML =
+      `<div class="note" style="margin-top:12px">По «${r[0]}» в этот день заявок в CRM нет. Если это объявление ведёт в WhatsApp — метка не доезжает, смотри колонку «Диалоги Meta» на вкладке «Сквозная».</div>`; return; }
+    const names=["Салтанат","Данияр","Алиса","Ерасыл","Дана","Азамат","Аружан","Тимур","Руслан","Мадина","Нурай"];
+    $("#coh-drill").innerHTML = `<div class="note" style="margin:14px 0 8px;color:var(--ink2)">
+        Заявки с «${r[0]}» за ${day} — ${r[7]} шт. В реальном дашборде каждая строка ведёт в карточку Amo.</div>
+      <div class="tw"><table><tr><th>Заявка</th><th>Менеджер</th><th>Целевой</th><th>Запись на встречу</th><th>Дошёл</th><th>Купил</th></tr>
+      ${Array.from({length:r[7]},(_,i)=>`<tr>
+        <td><span class="lk">${names[i%names.length]} · #${41200+i*7}</span></td>
+        <td>${["Айгерим","Данияр","Мадина","Ержан"][i%4]}</td>
+        <td>${i<r[8]?"да":"нет"}</td><td>${i<r[9]?"да":"—"}</td>
+        <td>${i<r[10]?"да":"—"}</td><td>${i<r[11]?"<b style='color:#4ec24e'>да</b>":"—"}</td></tr>`).join("")}
+      </table></div>`;
+  });
+}
+$("#coh-day").onchange = e => drawCohort(e.target.value.replace(".2026",""));
+drawCohort("05.08");
+
+/* --- менеджеры --- */
+[["Первая линия","op-hunters"],["Кто проводит встречи","op-teachers"],["Менеджеры сделки","op-closers"]].forEach(([n,id],i)=>{
+  const b=document.createElement("button"); b.className="chip"+(i?"":" on"); b.textContent=n;
+  b.onclick=()=>{ document.querySelectorAll("#op-sub .chip").forEach(x=>x.classList.remove("on")); b.classList.add("on");
+    document.querySelectorAll(".opblock").forEach(x=>x.style.display="none"); $("#"+id).style.display="block"; };
+  $("#op-sub").appendChild(b);
+});
+$("#tb-hunters").innerHTML = `<table>
+  <tr><th>Менеджер</th><th>Заявки</th><th>Дозвон</th><th>До 1-го звонка</th><th>Целевые</th><th>% целевых</th><th>Записи на встречу</th><th>Заявка→запись</th></tr>
+  ${D.hunters.map(h=>`<tr><td>${h.n}</td><td>${h.leads}</td>
+    <td><span class="pill" style="background:${h.dozvon>=70?'rgba(12,163,12,.14)':'rgba(250,178,25,.14)'};color:${h.dozvon>=70?'#4ec24e':'#e2b45c'}">${h.dozvon}%</span></td>
+    <td>${h.first} мин</td><td>${h.kval}</td><td>${pct(h.kval,h.leads)}</td><td>${h.rec}</td><td>${pct(h.rec,h.leads)}</td></tr>`).join("")}
+  <tr class="tot"><td>Итого</td><td>128</td><td>71,1%</td><td>24 мин</td><td>52</td><td>40,6%</td><td>22</td><td>17,2%</td></tr></table>`;
+$("#tb-teachers").innerHTML = `<table>
+  <tr><th>Специалист</th><th>Назначено</th><th>Проведено</th><th>Доходимость</th><th>Продаж после встречи</th><th>встреча→продажа</th></tr>
+  ${D.teachers.map(t=>`<tr><td>${t.n}</td><td>${t.set}</td><td>${t.done}</td><td>${pct(t.done,t.set)}</td><td>${t.sales}</td><td>${pct(t.sales,t.done)}</td></tr>`).join("")}
+  <tr class="tot"><td>Итого</td><td>22</td><td>14</td><td>63,6%</td><td>6</td><td>42,9%</td></tr></table>`;
+$("#tb-closers").innerHTML = `<table>
+  <tr><th>Менеджер сделки</th><th>Принято после встречи</th><th>Продажи</th><th>Конверсия</th><th>Касса</th><th>Средний чек</th><th>Цикл, дн</th></tr>
+  ${D.closers.map(c=>`<tr><td>${c.n}</td><td>${c.got}</td><td>${c.sales}</td><td>${pct(c.sales,c.got)}</td>
+    <td>${fmt(c.cash)}</td><td>${fmt(Math.round(c.cash/c.sales))}</td><td>${c.cyc}</td></tr>`).join("")}
+  <tr class="tot"><td>Итого</td><td>14</td><td>6</td><td>42,9%</td><td>3 420 000</td><td>570 000</td><td>9</td></tr></table>`;
+
+/* --- маркетинг: CAC / ДРР --- */
+function simpleBars(host, rows, unit){
+  const W=520,H=190,ML=120,MR=50,MT=8,MB=8, ph=H-MT-MB;
+  const max=Math.max(...rows.map(r=>r[1]))*1.15||1;
+  const s=el("svg",{viewBox:`0 0 ${W} ${H}`,width:"100%"});
+  const bh=ph/rows.length;
+  rows.forEach((r,i)=>{
+    const w=r[1]/max*(W-ML-MR), y=MT+bh*i+bh*0.2;
+    el("rect",{x:ML,y,width:Math.max(w,2),height:bh*0.6,rx:4,fill:r[2]||"var(--s1)"},s);
+    const lb=el("text",{x:ML-10,y:y+bh*0.42,fill:"var(--ink2)","font-size":12,"text-anchor":"end"},s); lb.textContent=r[0];
+    const vl=el("text",{x:ML+Math.max(w,2)+8,y:y+bh*0.42,fill:"var(--ink)","font-size":12},s); vl.textContent=unit(r[1]);
+  });
+  host.appendChild(s);
+}
+const cacRows = D.channels.filter(c=>c.spend>0&&c.sales>0).map(c=>[c.n, Math.round(c.spend/c.sales), c.c]);
+cacRows.push(["Квиз / сайт", 0, "var(--s4)"]);
+simpleBars($("#ch-cac"), cacRows, v=> v? "$"+fmt(v) : "нет продаж");
+simpleBars($("#ch-drr"), D.channels.filter(c=>c.cash>0).map(c=>[c.n, +(c.spend*488/c.cash*100).toFixed(1), c.c]),
+  v=> v? v.toLocaleString("ru-RU")+"%" : "0%");
+
+/* --- маркетинг: дерево --- */
+function mktRows(items, out=[], parent=""){
+  items.forEach((r,i)=>{
+    const key = parent+"/"+i;
+    out.push({...r, key, parent, hasKids: !!(r.kids&&r.kids.length)});
+    if(r.kids) mktRows(r.kids, out, key);
+  });
+  return out;
+}
+const flat = mktRows(D.mkt);
+const open = new Set();
+function renderMkt(){
+  function isVisible(r){ let p=r.parent; while(p!==""){ if(!open.has(p)) return false; p = (flat.find(x=>x.key===p)||{}).parent ?? ""; } return true; }
+  const rows = flat.filter(isVisible);
+  $("#tb-mkt").innerHTML = `<table>
+   <tr><th>Канал / кампания / креатив</th><th>Расход</th><th>Лиды</th><th>CPL</th><th>Целевые</th><th>% целевых</th><th>Записи</th><th>Продажи</th><th>Касса</th><th>CAC</th><th>ДРР</th></tr>
+   ${rows.map(r=>`<tr class="${r.hasKids?'drill':''} lvl${r.lvl}" data-k="${r.key}">
+      <td>${r.hasKids?`<span class="tri">${open.has(r.key)?'▾':'▸'}</span>`:'<span class="tri"></span>'}${r.n}</td>
+      <td>${r.spend?'$'+fmt(r.spend):'—'}</td><td>${r.leads}</td>
+      <td>${r.spend?'$'+(r.spend/r.leads).toFixed(2).replace('.',','):'—'}</td>
+      <td>${r.kval}</td><td>${pct(r.kval,r.leads)}</td><td>${r.rec}</td><td>${r.sales}</td>
+      <td>${r.cash?fmt(r.cash):'—'}</td>
+      <td>${r.spend&&r.sales?'$'+fmt(Math.round(r.spend/r.sales)):'—'}</td>
+      <td>${r.spend&&r.cash?(r.spend*488/r.cash*100).toFixed(1).replace('.',',')+'%':'—'}</td></tr>`).join("")}
+   <tr class="tot"><td>Итого</td><td>$1 214</td><td>128</td><td>$9,48</td><td>52</td><td>40,6%</td><td>22</td><td>6</td><td>3 420 000</td><td>$202</td><td>17,3%</td></tr>
+  </table>`;
+  document.querySelectorAll("#tb-mkt tr.drill").forEach(tr=>tr.onclick=()=>{
+    const k=tr.dataset.k; open.has(k)?open.delete(k):open.add(k); renderMkt();
+  });
+}
+renderMkt();
+
+/* --- гистограммы циклов --- */
+const histMax = Math.max(...D.hist.flatMap(h=>h.bins.map(b=>b[1])));
+D.hist.forEach(h=>{
+  const box=document.createElement("div");
+  box.innerHTML=`<div class="note" style="margin:0 0 8px;color:var(--ink2)">${h.t}</div>`;
+  const W=340,H=150,ML=10,MB=26,MT=8, ph=H-MB-MT, pw=W-ML*2;
+  const s=el("svg",{viewBox:`0 0 ${W} ${H}`,width:"100%"});
+  const bw=pw/h.bins.length;
+  h.bins.forEach((b,i)=>{
+    const hh=b[1]/histMax*ph;
+    el("rect",{x:ML+bw*i+bw*0.18,y:MT+ph-hh,width:bw*0.64,height:Math.max(hh,2),rx:4,fill:"var(--s1)"},s);
+    const t=el("text",{x:ML+bw*i+bw/2,y:H-9,fill:"var(--muted)","font-size":11,"text-anchor":"middle"},s); t.textContent=b[0];
+    const v=el("text",{x:ML+bw*i+bw/2,y:MT+ph-hh-5,fill:"var(--ink2)","font-size":11,"text-anchor":"middle"},s); v.textContent=b[1];
+  });
+  el("line",{x1:ML,x2:W-ML,y1:MT+ph,y2:MT+ph,stroke:"var(--axis)"},s);
+  box.appendChild(s); $("#ch-hist").appendChild(box);
+});
+simpleBars($("#ch-alo"), D.hunters.map(h=>[h.n,h.dozvon,"var(--s1)"]), v=>v+"%");
+
+/* --- качество данных --- */
+const qaHtml = D.qa.map(q=>`
+  <div class="chk">
+    <h4><span class="led ${q.s}"></span>${q.t}</h4>
+    <div class="facts">${q.f}</div>
+    <p>${q.p}</p>
+    <div class="todo"><b>Что делать:</b> ${q.d}</div>
+  </div>`).join("");
+$("#qa-list").innerHTML = qaHtml;
+$("#qa-list2").innerHTML = qaHtml;
+document.querySelectorAll("#p-rnp details .sub").forEach(n=>{
+  if(n.innerHTML.includes("проверено")) n.innerHTML =
+    `проверено ${D.qa.length} мест · требуют внимания: <b style="color:var(--crit)">${D.qa.filter(q=>q.s!=="g").length}</b>`;
+});
+
+/* --- план --- */
+const DAYS_IN_MONTH = 31, DAY_NOW = 7;
+const FACT = {leads:128, rec:22, visit:14, sales:6, cash:3420000, budget:1214, cac:202};
+function renderPlan(){
+  const goal=+$("#i-goal").value||0, chk=+$("#i-check").value||1;
+  const c1=(+$("#i-c1").value||1)/100, c2=(+$("#i-c2").value||1)/100, c3=(+$("#i-c3").value||1)/100, cpl=+$("#i-cpl").value||1;
+  const sales=Math.ceil(goal/chk), visit=Math.ceil(sales/c3), rec=Math.ceil(visit/c2), leads=Math.ceil(rec/c1);
+  const budget=Math.round(leads*cpl), cac=Math.round(budget/sales);
+  const k = DAY_NOW/DAYS_IN_MONTH;
+  const num = v=>fmt(Math.round(v)), usd = v=>"$"+fmt(Math.round(v));
+  const rows=[
+    {n:"Лиды", plan:leads, fact:FACT.leads, f:num},
+    {n:"Записи на встречу", plan:rec, fact:FACT.rec, f:num},
+    {n:"Визиты (встречи прошли)", plan:visit, fact:FACT.visit, f:num},
+    {n:"Продажи", plan:sales, fact:FACT.sales, f:num},
+    {n:"Касса", plan:goal, fact:FACT.cash, f:v=>money(Math.round(v))},
+    {n:"Бюджет рекламы", plan:budget, fact:FACT.budget, f:usd},
+    {n:"CAC", plan:cac, fact:FACT.cac, f:usd, rate:true}
+  ];
+  $("#tb-plan").innerHTML = `<table>
+    <tr><th>Показатель</th><th>Нужно за месяц</th><th>В день</th><th>План на 7-е</th><th>Факт сейчас</th><th>Выполнение</th></tr>
+    ${rows.map(r=>{
+      if(r.rate){
+        const worse = r.fact > r.plan;
+        return `<tr><td>${r.n} <span class="q">чем меньше, тем лучше</span></td><td><b style="color:var(--ink)">${r.f(r.plan)}</b></td>
+          <td>—</td><td>—</td><td>${r.f(r.fact)}</td>
+          <td><span class="badge ${worse?"down":"up"}">${worse?"▲":"▼"}${Math.abs(Math.round((r.fact/r.plan-1)*100))}% к плану</span></td></tr>`;
+      }
+      const toDate = r.plan*k, done = r.fact/toDate*100;
+      const cls = done>=90?"up":done>=70?"flat":"down";
+      return `<tr><td>${r.n}</td><td><b style="color:var(--ink)">${r.f(r.plan)}</b></td><td>${r.f(r.plan/DAYS_IN_MONTH)}</td><td>${r.f(toDate)}</td>
+        <td>${r.f(r.fact)}</td>
+        <td><span class="badge ${cls}">${Math.round(done)}%</span></td></tr>`;
+    }).join("")}</table>`;
+  $("#tb-plan-mini").innerHTML = $("#tb-plan").innerHTML;
+  $("#plan-note").textContent =
+    `Из плана также: конверсия лид→визит ${(c1*c2*100).toFixed(1).replace(".",",")}% · CPL $${cpl} · CAC $${fmt(cac)}. `+
+    `Меняешь любое поле — вся декомпозиция пересчитывается сразу.`;
+  const facts=[["лид→запись",FACT.rec/FACT.leads*100,c1*100],["запись→визит",FACT.visit/FACT.rec*100,c2*100],["визит→продажа",FACT.sales/FACT.visit*100,c3*100]];
+  $("#plan-conv").innerHTML = facts.map(([n,f,p])=>{
+    const ok=f>=p;
+    return `<span class="chip" style="cursor:default;background:${ok?'rgba(12,163,12,.12)':'rgba(208,59,59,.12)'};
+      border-color:${ok?'rgba(12,163,12,.35)':'rgba(208,59,59,.35)'};color:${ok?'#4ec24e':'#e58585'}">
+      ${ok?'✓':'⚠'} ${n}: факт ${f.toFixed(0)}% / план ${p.toFixed(0)}%</span>`;
+  }).join("");
+}
+["i-goal","i-check","i-c1","i-c2","i-c3","i-cpl"].forEach(id=>$("#"+id).addEventListener("input",renderPlan));
+renderPlan();
+
+/* ============================================================= */
+/* ВСТРЕЧИ                                                        */
+/* ============================================================= */
+const PU = {
+  days:[
+    {d:"07.08", wd:"четверг · сегодня", slots:[
+      {t:"10:00", kid:"Салтанат Ж.", teach:"Асель",  hunt:"Айгерим", st:"прошёл"},
+      {t:"12:30", kid:"Данияр К.", teach:"Тимур", hunt:"Мадина",  st:"прошёл"},
+      {t:"15:00", kid:"Алиса В.",  teach:"Асель",  hunt:"Данияр",  st:"не пришёл"},
+      {t:"17:00", kid:"Ерасыл С.",teach:"Камила", hunt:"Айгерим", st:"впереди"},
+      {t:"18:30", kid:"Дана М.",  teach:"Тимур",  hunt:"Ержан",   st:"впереди"}
+    ]},
+    {d:"08.08", wd:"пятница", slots:[
+      {t:"11:00", kid:"Азамат Т.",teach:"Асель",  hunt:"Мадина",  st:"впереди"},
+      {t:"14:00", kid:"Аружан Б.", teach:"Камила", hunt:"Айгерим", st:"впереди"},
+      {t:"16:00", kid:"Тимур Н.", teach:"Тимур",  hunt:"Данияр",  st:"впереди"},
+      {t:"18:00", kid:"Руслан А.",teach:"—",      hunt:"Ержан",   st:"нет специалиста"}
+    ]},
+    {d:"09.08", wd:"суббота", slots:[
+      {t:"10:00", kid:"Мадина О.", teach:"Асель",  hunt:"Айгерим", st:"впереди"},
+      {t:"11:30", kid:"Нурай Ж.", teach:"Асель",  hunt:"Мадина",  st:"впереди"},
+      {t:"13:00", kid:"Ислам Р.", teach:"Камила", hunt:"Данияр",  st:"перенос ×2"},
+      {t:"15:00", kid:"Айша К.",   teach:"Тимур",  hunt:"Айгерим", st:"впереди"}
+    ]},
+    {d:"10.08", wd:"воскресенье", slots:[
+      {t:"12:00", kid:"Дамир С.", teach:"Камила", hunt:"Ержан",   st:"впереди"},
+      {t:"14:00", kid:"Асем Е.",  teach:"Асель",  hunt:"Мадина",  st:"впереди"},
+      {t:"16:00", kid:"Бекзат У.", teach:"—",      hunt:"Данияр",  st:"нет специалиста"},
+      {t:"17:30", kid:"Жанель И.",teach:"Тимур",  hunt:"Айгерим", st:"перенос ×2"}
+    ]}
+  ]
+};
+const stColor = s => s==="прошёл" ? "var(--good)" : s==="не пришёл" ? "var(--crit)"
+  : s==="нет специалиста"||s==="перенос ×2" ? "var(--warn)" : "var(--muted)";
+$("#pu-sched").innerHTML = PU.days.map(d=>`
+  <div class="dayhdr"><b>${d.d}</b><span>${d.wd} · ${d.slots.length} встреч</span></div>
+  ${d.slots.map(s=>`<div class="slot ${s.st==="прошёл"||s.st==="не пришёл"?"past":""}">
+    <div class="t">${s.t}</div>
+    <div class="who">${s.kid}</div>
+    <div class="m">ведёт: ${s.teach}</div>
+    <div class="m">лид от: ${s.hunt}</div>
+    <div><span class="pill" style="background:${stColor(s.st)}22;color:${stColor(s.st)}">${s.st}</span></div>
+  </div>`).join("")}`).join("");
+
+const puCats = PU.days.map(d=>d.d);
+const puTotal = PU.days.map(d=>d.slots.length);
+const puCome = puTotal.map(v=>Math.round(v*0.64));
+(function(){
+  const host=$("#ch-pu-days"), W=1080,H=200,ML=44,MR=16,MT=14,MB=28, pw=W-ML-MR, ph=H-MT-MB;
+  const max=Math.max(...puTotal)*1.25;
+  const s=el("svg",{viewBox:`0 0 ${W} ${H}`,width:"100%",height:H});
+  for(let i=0;i<=4;i++){const y=MT+ph-ph*i/4;
+    el("line",{x1:ML,x2:W-MR,y1:y,y2:y,stroke:"var(--grid)"},s);
+    const t=el("text",{x:ML-10,y:y+4,fill:"var(--muted)","font-size":11,"text-anchor":"end"},s);t.textContent=Math.round(max*i/4);}
+  const bw=pw/puCats.length;
+  puCats.forEach((c,i)=>{
+    const come=puCome[i], miss=puTotal[i]-come;
+    const hc=come/max*ph, hm=miss/max*ph;
+    const x=ML+bw*i+bw*0.34, w=bw*0.32;
+    el("rect",{x,y:MT+ph-hc,width:w,height:Math.max(hc,2),rx:4,fill:"var(--s3)"},s);
+    el("rect",{x,y:MT+ph-hc-hm-2,width:w,height:Math.max(hm,2),rx:4,fill:"var(--line2)"},s);
+    const hit=el("rect",{x:ML+bw*i,y:MT,width:bw,height:ph,fill:"transparent"},s);
+    bindTip(hit,`<b>${c}</b><br>назначено ${puTotal[i]} встреч<br>ждём ${come} · рискуем потерять ${miss}`);
+    const t=el("text",{x:ML+bw*i+bw/2,y:H-9,fill:"var(--muted)","font-size":11,"text-anchor":"middle"},s);
+    t.textContent=c+" "+PU.days[i].wd.split(" ")[0];
+  });
+  host.appendChild(s);
+})();
+$("#tb-pu-days").innerHTML = `<table><tr><th>День</th>${puCats.map(c=>`<th>${c}</th>`).join("")}<th>Итого</th></tr>
+  <tr><td>Назначено встреч</td>${puTotal.map(v=>`<td>${v}</td>`).join("")}<td>${puTotal.reduce((a,b)=>a+b,0)}</td></tr>
+  <tr><td>Ожидаем приход</td>${puCome.map(v=>`<td>${v}</td>`).join("")}<td>${puCome.reduce((a,b)=>a+b,0)}</td></tr></table>`;
+
+/* ============================================================= */
+/* СКВОЗНАЯ: РАЗРЕЗ ПО КРЕАТИВАМ META                            */
+/* ============================================================= */
+const CREO = [
+  {ad:"кейс_до_после_15с",  adset:"Город · Квиз",   id:"#4180026", sp:180, imp:38750, hook:15.6, vtr:1.1, leads:20, rec:8, vis:5, sales:2, cash:1140000, wa:0},
+  {ad:"процесс_работы.mp4",  adset:"CTWA · Broad",    id:"#7710026", sp:150, imp:31402, hook:13.5, vtr:0.9, leads:0,  rec:0, vis:0, sales:1, cash:570000, wa:22, waCpl:6.8},
+  {ad:"отзыв_клиента",      adset:"Город · Квиз",   id:"#5930026", sp:130, imp:22368, hook:8.4,  vtr:1.9, leads:13, rec:3, vis:2, sales:0, cash:0, wa:0},
+  {ad:"офис_3D.mp4",    adset:"CTWA · Broad",    id:"#0870026", sp:118, imp:26014, hook:7.3,  vtr:1.7, leads:0,  rec:0, vis:0, sales:0, cash:0, wa:22, waCpl:5.4},
+  {ad:"retarget_1",     adset:"Retarget",        id:"#9690026", sp:96,  imp:18196, hook:7.5,  vtr:1.1, leads:8,  rec:1, vis:1, sales:0, cash:0, wa:0},
+  {ad:"статика_цены",      adset:"Retarget",        id:"#2110026", sp:68,  imp:12802, hook:0,    vtr:0,   leads:5,  rec:1, vis:0, sales:0, cash:0, wa:0},
+  {ad:"TT_короткий_9с",   adset:"TT · LEAD_SITE",       id:"#3550026", sp:132, imp:47052, hook:13.3, vtr:0.6, leads:13, rec:3, vis:3, sales:1, cash:570000, wa:0},
+  {ad:"TT_проблема_решение",   adset:"TT · LEAD_SITE",       id:"#0760026", sp:100, imp:28400, hook:6.2,  vtr:0.6, leads:8,  rec:1, vis:2, sales:1, cash:540000, wa:0},
+  {ad:"TT_UGC_крео3",     adset:"TT · UGC креативы",   id:"#5540026", sp:96,  imp:13513, hook:4.1,  vtr:0.4, leads:9,  rec:1, vis:0, sales:0, cash:0, wa:0},
+  {ad:"TT_UGC_крео5",     adset:"TT · UGC креативы",   id:"#7350026", sp:70,  imp:9567,  hook:7.9,  vtr:0.5, leads:5,  rec:1, vis:0, sales:0, cash:0, wa:0},
+  {ad:"квиз_баннер_1",     adset:"Квиз · сайт",          id:"#6620026", sp:44,  imp:6912,  hook:0,    vtr:0,   leads:9,  rec:1, vis:0, sales:0, cash:0, wa:0},
+  {ad:"квиз_баннер_2",     adset:"Квиз · сайт",          id:"#0280026", sp:30,  imp:4843,  hook:0,    vtr:0,   leads:5,  rec:0, vis:0, sales:0, cash:0, wa:0}
+];
+const OFFSITE = [
+  {n:"🔗 Органика Instagram", leads:11, rec:1, vis:1, sales:1, cash:600000},
+  {n:"🔗 Сарафан",            leads:5,  rec:1, vis:0, sales:0, cash:0},
+  {n:"🔗 Входящий звонок",    leads:2,  rec:0, vis:0, sales:0, cash:0},
+  {n:"✍️ Создано вручную",    leads:1,  rec:0, vis:0, sales:0, cash:0},
+  {n:"❔ Без метки",           leads:14, rec:0, vis:0, sales:0, cash:0}
+];
+(function(){
+  const RATE = 488;
+  const maxSp = Math.max(...CREO.map(c=>c.sp));
+  const cell = (v,f)=> v ? f(v) : "—";
+  const hookC = v => v>=12?"#4ec24e":v>=7?"var(--ink2)":v>0?"#e58585":"var(--muted)";
+  const rows = CREO.map(c=>{
+    const cpl = c.leads? c.sp/c.leads : 0;
+    const cac = c.sales? c.sp/c.sales : 0;
+    const roas = c.sp? c.cash/(c.sp*RATE) : 0;
+    const modeled = c.wa>0 && c.sales>0;
+    return `<tr>
+      <td><span class="adname lk">${c.ad} ↗</span> <span class="q">· ${c.adset} ${c.id}</span>
+          <span class="mb" style="width:${Math.round(c.sp/maxSp*54)}px"></span></td>
+      <td>$${fmt(c.sp)}</td><td>${fmt(c.imp)}</td>
+      <td style="color:${hookC(c.hook)}">${c.hook?c.hook.toLocaleString("ru-RU")+"%":"—"}</td>
+      <td style="color:${hookC(c.vtr*7)}">${c.vtr?c.vtr.toLocaleString("ru-RU")+"%":"—"}</td>
+      <td>${c.leads?`<span class="lk">${c.leads} 🔎</span>`:"0"}</td>
+      <td>${c.wa?`<span style="color:var(--s6)">${c.wa} · $${c.waCpl.toLocaleString("ru-RU")}</span>`:"—"}</td>
+      <td>${cell(cpl,v=>"$"+v.toFixed(1).replace(".",","))}</td>
+      <td>${c.rec?`<span class="lk">${c.rec} 🔎</span>`:"0"}</td>
+      <td>${c.leads?pct(c.rec,c.leads):"—"}</td>
+      <td>${c.vis?`<span class="lk">${c.vis} 🔎</span>`:"0"}</td>
+      <td><b style="color:var(--ink)">${c.sales}</b></td>
+      <td>${c.cash?(modeled?"≈ ":"")+fmt(c.cash):"—"}</td>
+      <td>${cell(cac,v=>"$"+fmt(Math.round(v)))}</td>
+      <td>${roas?roas.toFixed(2).replace(".",","):"—"}</td></tr>`;
+  }).join("");
+  const T = CREO.reduce((a,c)=>({sp:a.sp+c.sp,imp:a.imp+c.imp,leads:a.leads+c.leads,wa:a.wa+c.wa,
+    rec:a.rec+c.rec,vis:a.vis+c.vis,sales:a.sales+c.sales,cash:a.cash+c.cash}),
+    {sp:0,imp:0,leads:0,wa:0,rec:0,vis:0,sales:0,cash:0});
+  const O = OFFSITE.reduce((a,c)=>({leads:a.leads+c.leads,rec:a.rec+c.rec,vis:a.vis+c.vis,sales:a.sales+c.sales,cash:a.cash+c.cash}),
+    {leads:0,rec:0,vis:0,sales:0,cash:0});
+  const off = OFFSITE.map(o=>`<tr><td>${o.n}</td><td>—</td><td>—</td><td>—</td><td>—</td>
+    <td>${o.leads?`<span class="lk">${o.leads} 🔎</span>`:"0"}</td><td>—</td><td>—</td>
+    <td>${o.rec||0}</td><td>${o.leads?pct(o.rec,o.leads):"—"}</td><td>${o.vis||0}</td>
+    <td><b style="color:var(--ink)">${o.sales}</b></td><td>${o.cash?fmt(o.cash):"—"}</td><td>—</td><td>—</td></tr>`).join("");
+
+  $("#tb-creo").innerHTML = `<table>
+    <tr><th style="min-width:300px">Объявление</th><th>Расход $</th><th>Показы</th><th>Хук %</th><th>Досмотр %</th>
+      <th>Лиды CRM</th><th>Диалоги Meta</th><th>CPL $</th><th>Записи</th><th>%лид→зап</th><th>Визиты</th><th>Прод.</th><th>Касса ₸</th><th>CAC $</th><th>ROAS</th></tr>
+    ${rows}
+    <tr class="tot"><td>Итого по объявлениям</td><td>$${fmt(T.sp)}</td><td>${fmt(T.imp)}</td>
+      <td>${(CREO.reduce((a,c)=>a+c.hook*c.imp,0)/T.imp).toFixed(1).replace(".",",")}%</td>
+      <td>${(CREO.reduce((a,c)=>a+c.vtr*c.imp,0)/T.imp).toFixed(1).replace(".",",")}%</td>
+      <td>${T.leads}</td><td>${T.wa}</td><td>$${(T.sp/T.leads).toFixed(1).replace(".",",")}</td>
+      <td>${T.rec}</td><td>${pct(T.rec,T.leads)}</td><td>${T.vis}</td><td>${T.sales}</td>
+      <td>≈ ${fmt(T.cash)}</td><td>$${fmt(Math.round(T.sp/T.sales))}</td><td>${(T.cash/(T.sp*RATE)).toFixed(2).replace(".",",")}</td></tr>
+    <tr><td colspan="15" style="color:var(--muted);font-size:11.5px;padding-top:14px;border:0">
+      Не-рекламные источники — органика, сарафан, оффлайн, созданные вручную, без метки.
+      В окупаемость рекламы не входят, но в общий свод — да.</td></tr>
+    ${off}
+    <tr class="tot"><td>Всего = РНП (128 заявок)</td><td>$${fmt(T.sp)}</td><td>—</td><td>—</td><td>—</td>
+      <td>${T.leads+O.leads}</td><td>${T.wa}</td><td>—</td><td>${T.rec+O.rec}</td><td>${pct(T.rec+O.rec,T.leads+O.leads)}</td>
+      <td>${T.vis+O.vis}</td><td>${T.sales+O.sales}</td><td>${fmt(T.cash+O.cash)}</td><td>—</td><td>—</td></tr>
+  </table>
+  <div class="note" style="margin-top:12px">
+    <b style="color:var(--ink)">Сверка:</b> сумма всех строк по лидам = ${T.leads+O.leads}, ровно столько заявок в РНП за период — учтено 100%.
+    «Итого по объявлениям» считается отдельно: делить сарафан и оффлайн на рекламный расход нечестно, ROAS получится липовый.
+  </div>`;
+})();
+
+$("#cut-select").onchange = e => {
+  const sankey = e.target.selectedIndex === 0;
+  $("#cut-sankey").style.display = sankey ? "block" : "none";
+  $("#cut-creatives").style.display = sankey ? "none" : "block";
+};
+
+/* ============================================================= */
+/* WEEK TO WEEK                                                  */
+/* ============================================================= */
+/* Календарный режим: всё, что СЛУЧИЛОСЬ на этой неделе.
+   Записи и продажи здесь — от лидов любых прошлых недель. */
+const WEEKS_CAL = [
+  {n:"н32", p:"03.08–09.08", leads:128, kval:52, rec:22, vis:14, sales:6,  cash:3420000, hours:"18ч 36м", c1:17.2, c2:63.6, c3:42.9, sp:1214, drr:17.3, cac:202, cpl:9.48},
+  {n:"н31", p:"27.07–02.08", leads:157, kval:59, rec:21, vis:18, sales:8,  cash:4460000, hours:"26ч 12м", c1:13.4, c2:85.7, c3:44.4, sp:1114, drr:12.2, cac:139, cpl:7.09},
+  {n:"н30", p:"20.07–26.07", leads:184, kval:76, rec:36, vis:19, sales:9,  cash:5120000, hours:"28ч 30м", c1:19.6, c2:52.8, c3:47.4, sp:1341, drr:12.8, cac:149, cpl:7.29},
+  {n:"н29", p:"13.07–19.07", leads:172, kval:62, rec:31, vis:13, sales:4,  cash:2250000, hours:"24ч 30м", c1:18.0, c2:41.9, c3:30.8, sp:1522, drr:33.0, cac:381, cpl:8.85},
+  {n:"н28", p:"06.07–12.07", leads:198, kval:82, rec:35, vis:14, sales:5,  cash:2840000, hours:"34ч 18м", c1:17.7, c2:40.0, c3:35.7, sp:1395, drr:24.0, cac:279, cpl:7.05},
+  {n:"н27", p:"29.06–05.07", leads:212, kval:97, rec:49, vis:23, sales:11, cash:6180000, hours:"33ч 24м", c1:23.1, c2:46.9, c3:47.8, sp:1258, drr:9.9,  cac:114, cpl:5.93},
+  {n:"н26", p:"22.06–28.06", leads:175, kval:77, rec:39, vis:16, sales:7,  cash:3980000, hours:"28ч 24м", c1:22.3, c2:41.0, c3:43.8, sp:962,  drr:11.8, cac:137, cpl:5.50},
+  {n:"н25", p:"15.06–21.06", leads:163, kval:71, rec:33, vis:14, sales:5,  cash:2910000, hours:"26ч 48м", c1:20.2, c2:42.4, c3:35.7, sp:933,  drr:15.6, cac:187, cpl:5.72}
+];
+/* Когортный режим: берём лиды, пришедшие на этой неделе, и тянем ИХ путь дальше,
+   когда бы он ни случился. Свежие недели ещё дозревают — помечены. */
+const WEEKS_COH = [
+  {n:"н32", p:"03.08–09.08", leads:128, kval:44, rec:12, vis:5,  sales:1, cash:570000,  hours:"18ч 36м", c1:9.4,  c2:41.7, c3:20.0, sp:1214, drr:213.0, cac:1214, cpl:9.48, ripe:0.22},
+  {n:"н31", p:"27.07–02.08", leads:157, kval:58, rec:24, vis:14, sales:4, cash:2280000, hours:"26ч 12м", c1:15.3, c2:58.3, c3:28.6, sp:1114, drr:23.8,  cac:279,  cpl:7.09, ripe:0.55},
+  {n:"н30", p:"20.07–26.07", leads:184, kval:74, rec:34, vis:21, sales:8, cash:4560000, hours:"28ч 30м", c1:18.5, c2:61.8, c3:38.1, sp:1341, drr:14.4,  cac:168,  cpl:7.29, ripe:0.88},
+  {n:"н29", p:"13.07–19.07", leads:172, kval:64, rec:29, vis:17, sales:6, cash:3390000, hours:"24ч 30м", c1:16.9, c2:58.6, c3:35.3, sp:1522, drr:21.9,  cac:254,  cpl:8.85, ripe:1},
+  {n:"н28", p:"06.07–12.07", leads:198, kval:80, rec:38, vis:22, sales:9, cash:5040000, hours:"34ч 18м", c1:19.2, c2:57.9, c3:40.9, sp:1395, drr:13.5,  cac:155,  cpl:7.05, ripe:1},
+  {n:"н27", p:"29.06–05.07", leads:212, kval:95, rec:47, vis:28, sales:12,cash:6820000, hours:"33ч 24м", c1:22.2, c2:59.6, c3:42.9, sp:1258, drr:9.0,   cac:105,  cpl:5.93, ripe:1},
+  {n:"н26", p:"22.06–28.06", leads:175, kval:75, rec:36, vis:20, sales:8, cash:4480000, hours:"28ч 24м", c1:20.6, c2:55.6, c3:40.0, sp:962,  drr:10.5,  cac:120,  cpl:5.50, ripe:1},
+  {n:"н25", p:"15.06–21.06", leads:163, kval:70, rec:31, vis:18, sales:7, cash:3910000, hours:"26ч 48м", c1:19.0, c2:58.1, c3:38.9, sp:933,  drr:11.6,  cac:133,  cpl:5.72, ripe:1}
+];
+let WEEKS = WEEKS_CAL, WK_MODE = "cal";
+const WCOLS = [
+  {k:"leads", t:"Лиды",   f:v=>fmt(v),  good:1},
+  {k:"kval",  t:"Целевые",   f:v=>fmt(v),  good:1},
+  {k:"rec",   t:"Записи", f:v=>fmt(v),  good:1},
+  {k:"vis",   t:"Визиты", f:v=>fmt(v),  good:1},
+  {k:"sales", t:"Прод.",  f:v=>fmt(v),  good:1},
+  {k:"cash",  t:"Касса",  f:v=>money(v),good:1},
+  {k:"hours", t:"Часы ОП",f:v=>v,       good:0},
+  {k:"c1",    t:"Лид→зап",f:v=>v.toLocaleString("ru-RU")+"%", good:1},
+  {k:"c2",    t:"Зап→виз",f:v=>v.toLocaleString("ru-RU")+"%", good:1},
+  {k:"c3",    t:"Виз→прод",f:v=>v.toLocaleString("ru-RU")+"%",good:1},
+  {k:"sp",    t:"Расх.$", f:v=>"$"+fmt(v), good:0},
+  {k:"drr",   t:"ДРР",    f:v=>v.toLocaleString("ru-RU")+"%", good:-1},
+  {k:"cac",   t:"CAC$",   f:v=>"$"+fmt(v), good:-1},
+  {k:"cpl",   t:"CPL$",   f:v=>"$"+v.toLocaleString("ru-RU"), good:-1}
+];
+/* тепловая карта: два полюса + серая середина. Значение написано в каждой клетке,
+   поэтому цвет — только подсказка, а не единственный способ прочитать таблицу. */
+function heat(t, good){            // t: 0..1, где 1 = лучший в колонке
+  if(good===0) return "transparent";
+  const x = good<0 ? 1-t : t;      // для ДРР/CAC/CPL шкала перевёрнута
+  const d = (x-0.5)*2;             // -1 … +1
+  if(Math.abs(d)<0.12) return "rgba(120,126,140,.10)";
+  return d>0 ? `rgba(25,158,112,${(0.06+Math.abs(d)*0.19).toFixed(3)})`
+             : `rgba(208,59,59,${(0.06+Math.abs(d)*0.19).toFixed(3)})`;
+}
+$("#hm-ramp").innerHTML = [-1,-0.55,0,0.55,1].map(d=>{
+  const bg = Math.abs(d)<0.12 ? "rgba(120,126,140,.10)"
+    : d>0 ? `rgba(25,158,112,${0.06+Math.abs(d)*0.19})` : `rgba(208,59,59,${0.06+Math.abs(d)*0.19})`;
+  return `<i style="background:${bg}"></i>`;
+}).join("");
+
+function renderWeeks(){
+  const coh = WK_MODE==="coh";
+  WEEKS = coh ? WEEKS_COH : WEEKS_CAL;
+  $("#wk-title").textContent = coh
+    ? "Недельные когорты: что вышло из лидов каждой недели"
+    : "Недельная сводка: что случилось на каждой неделе";
+  $("#wk-sub").textContent = coh
+    ? "строка = неделя, когда пришли лиды. Записи, визиты и продажи — по этим же лидам, когда бы они ни случились. Конверсии здесь настоящие."
+    : "строка = неделя, когда случилось событие. Лиды свои, а записи и продажи — от лидов прошлых недель.";
+  $("#wk-note").innerHTML = coh
+    ? `<div class="hd">👥 Когортный режим — так считается окупаемость</div>
+       Взяли лиды недели и проследили их путь. Продажа, случившаяся через три недели, попадает в ту неделю, когда пришёл лид.
+       <b>Конверсии в этом режиме честные</b> — числитель и знаменатель про одних и тех же людей. Расход недели тоже делится на продажи её собственных лидов, поэтому CAC и ДРР здесь — реальная окупаемость.
+       <br>⚠️ Свежие недели ещё <b>дозревают</b>: медианный цикл сделки 9 дней, поэтому у верхних строк часть продаж просто ещё не случилась. Процент зрелости написан рядом с неделей.`
+    : `<div class="hd">📅 Календарный режим — так живёт касса</div>
+       Здесь каждая цифра про то, что произошло внутри недели. Это правильный ответ на вопрос «сколько мы заработали на этой неделе».
+       <br>⚠️ Но <b>колонки конверсий тут обманывают</b>: 22 записи недели сделаны из лидов прошлых недель, а не из 128 лидов этой.
+       Делить одно на другое можно, но это не конверсия, а просто отношение двух потоков — поэтому они приглушены.
+       Чтобы увидеть настоящие конверсии, переключись на когорту.`;
+
+  const ranges = {};
+  WCOLS.forEach(c=>{ if(c.good===0) return;
+    const vals=WEEKS.map(w=>w[c.k]); ranges[c.k]=[Math.min(...vals),Math.max(...vals)]; });
+  const isConv = k => ["c1","c2","c3"].includes(k);
+  $("#tb-week").innerHTML = `<tr><th>№</th><th>Неделя</th>${WCOLS.map(c=>
+      `<th${!coh&&isConv(c.k)?' style="color:#5d6473"':''}>${c.t}${!coh&&isConv(c.k)?" ⚠":""}</th>`).join("")}</tr>` +
+    WEEKS.map((w,wi)=>`<tr><td>${w.n}</td><td>${w.p}${
+        coh ? (w.ripe<1?` <span class="q">· зрелость ${Math.round(w.ripe*100)}%</span>`:"")
+            : (wi===0?' <span class="q">· идёт</span>':'')
+      }</td>${WCOLS.map(c=>{
+      const dim = !coh && isConv(c.k);
+      let bg="transparent";
+      if(c.good!==0 && !dim){ const [mn,mx]=ranges[c.k]; bg = heat(mx===mn?0.5:(w[c.k]-mn)/(mx-mn), c.good); }
+      const faded = (dim?'opacity:.42;':'') + (coh && w.ripe<1 ? 'opacity:'+(0.5+w.ripe*0.5)+';' : '');
+      return `<td class="c" style="background:${bg};${faded}">${c.f(w[c.k])}</td>`;
+    }).join("")}</tr>`).join("");
+}
+$("#wk-cal").onclick = ()=>{ WK_MODE="cal"; $("#wk-cal").classList.add("on"); $("#wk-coh").classList.remove("on"); renderWeeks(); };
+$("#wk-coh").onclick = ()=>{ WK_MODE="coh"; $("#wk-coh").classList.add("on"); $("#wk-cal").classList.remove("on"); renderWeeks(); };
+renderWeeks();
+
+/* ============================================================= */
+/* БАШ НА БАШ                                                    */
+/* ============================================================= */
+const BASH = [
+  ["sec","ТРАФИК"],
+  ["Расход Meta",              "$742","$690",  -1],
+  ["Расход TikTok",            "$398","$342",  -1],
+  ["Расход квиз / сайт",       "$74","$82",    -1],
+  ["Общий расход на трафик",   "$1 214","$1 114", -1],
+  ["Заявок с рекламы",         "96","121",      1],
+  ["CPL",                      "$9,48","$7,09", -1],
+  ["Заявок без рекламы",       "32","36",       1],
+  ["Всего заявок",             "128","157",     1],
+  ["sec","ОБЗВОН · ТЕЛЕФОНИЯ"],
+  ["Заявок получено",          "128","157",     1],
+  ["Попыток дозвона",          "342","388",     0],
+  ["Дозвонов",                 "243","263",     1],
+  ["% дозвона",                "71,1%","67,7%", 1],
+  ["Минут на линии",           "18ч 36м","26ч 12м", 1],
+  ["Заявок без единого звонка","11","6",       -1],
+  ["sec","КВАЛИФИКАЦИЯ"],
+  ["Целевых заявок",              "52","59",       1],
+  ["% целевых",                  "40,6%","37,6%", 1],
+  ["Стоимость целевого",          "$23,3","$18,9", -1],
+  ["Нецелевые (дубли, нет номера…)","46","51",    -1],
+  ["sec","ЗАПИСИ НА ВСТРЕЧУ"],
+  ["Записей на встречу",            "22","21",       1],
+  ["% записей от заявок",      "17,2%","13,4%", 1],
+  ["Конв. целевой → запись",      "42,3%","35,6%", 1],
+  ["sec","ПРОВЕДЕНИЕ ВСТРЕЧ"],
+  ["Проведено встреч",             "14","18",       1],
+  ["Доходимость (зап→виз)",    "63,6%","85,7%", 1],
+  ["Конв. заявка → встреча",   "10,9%","11,5%", 1],
+  ["sec","ОПЛАТЫ"],
+  ["Новых оплат",              "6","8",         1],
+  ["Доплат",                   "2","3",         1],
+  ["Сумма новых оплат",        "3,42 млн ₸","4,46 млн ₸", 1],
+  ["Сумма доплат",             "310 тыс ₸","420 тыс ₸",   1],
+  ["Общая касса",              "3,73 млн ₸","4,88 млн ₸", 1],
+  ["sec","ПОКАЗАТЕЛИ"],
+  ["Конв. заявка → продажа",   "4,7%","5,1%",   1],
+  ["Конв. встреча → продажа",  "42,9%","44,4%", 1],
+  ["Средний чек",              "570 тыс ₸","558 тыс ₸", 1],
+  ["CAC",                      "$202","$139",  -1],
+  ["ROAS",                     "5,8","8,2",     1],
+  ["ДРР",                      "17,3%","12,2%",-1],
+  ["Цикл сделки, медиана",     "9 дн","11 дн", -1]
+];
+(function(){
+  const num = s => parseFloat(String(s).replace(/[^0-9,.-]/g,"").replace(",","."))||0;
+  $("#tb-bash").innerHTML = `<tr><th>Метрика</th><th>01.08 – 07.08</th><th>01.07 – 07.07</th><th>Рост / падение</th></tr>` +
+    BASH.map(r=>{
+      if(r[0]==="sec") return `<tr class="sec"><td colspan="4">${r[1]}</td></tr>`;
+      const [n,a,b,dir]=r, av=num(a), bv=num(b);
+      let badge='<span class="badge flat">—</span>';
+      if(bv){
+        const ch=(av/bv-1)*100;
+        if(Math.abs(ch)<0.5) badge='<span class="badge flat">•0%</span>';
+        else{
+          const better = dir===0 ? null : (ch>0 ? dir>0 : dir<0);
+          const cls = better===null?"flat":better?"up":"down";
+          badge=`<span class="badge ${cls}">${ch>0?"▲":"▼"}${Math.abs(Math.round(ch))}%</span>`;
+        }
+      }
+      return `<tr><td>${n}</td><td>${a}</td><td style="color:var(--muted)">${b}</td><td>${badge}</td></tr>`;
+    }).join("");
+})();
+</script>
+</body>
+</html>
